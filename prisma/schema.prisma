@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Una sola tabla para los tres tipos de cuenta (rol: medico, paciente o admin).
+// Los campos que no corresponden al rol quedan en null.
+model Usuario {
+  id              Int        @id @default(autoincrement())
+  rol             String
+  // pendiente (medico esperando aprobacion), aprobada o rechazada
+  estado          String     @default("aprobada")
+  nombre          String
+  email           String     @unique
+  contrasena      String
+  dni             String     @unique
+  // Solo medico
+  matricula       String?    @unique
+  especialidad    String?
+  hospital        String?
+  // Solo paciente
+  fechaNacimiento DateTime?
+  direccion       String?
+  latitud         Float?
+  longitud        Float?
+  pesoKg          Float?
+  alergias        Alergia[]
+  codigosQr       CodigoQr[]
+  createdAt       DateTime   @default(now())
+
+  atencionesRecibidas  Atencion[] @relation("PacienteAtendido")
+  atencionesRealizadas Atencion[] @relation("MedicoQueAtiende")
+}
+
+model Alergia {
+  id         Int      @id @default(autoincrement())
+  nombre     String
+  pacienteId Int
+  paciente   Usuario  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+// Codigo que muestra el QR del paciente: es aleatorio y vence en pocos minutos.
+model CodigoQr {
+  id         Int      @id @default(autoincrement())
+  codigo     String   @unique
+  pacienteId Int
+  paciente   Usuario  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  venceEn    DateTime
+  createdAt  DateTime @default(now())
+}
+
+// Registro oficial de matriculas contra el que se verifica a los medicos.
+model Matricula {
+  id           Int      @id @default(autoincrement())
+  matricula    String   @unique
+  nombre       String
+  dni          String
+  especialidad String
+  createdAt    DateTime @default(now())
+}
+
+model Categoria {
+  id           Int           @id @default(autoincrement())
+  clave        String        @unique
+  nombre       String
+  orden        Int
+  medicamentos Medicamento[]
+  createdAt    DateTime      @default(now())
+}
+
+// Datos tomados del libro de Medicamentos en Emergencias Pediatricas (fuente unica).
+model Medicamento {
+  id              Int       @id @default(autoincrement())
+  categoriaId     Int
+  categoria       Categoria @relation(fields: [categoriaId], references: [id])
+  nombre          String
+  principioActivo String
+  viaCima         String
+  via             String
+  dosisPorKg      Float
+  dosisMaxima     Float?
+  unidad          String
+  nota            String
+  esCritico       Boolean   @default(false)
+  orden           Int
+  dosis           Dosis[]
+  createdAt       DateTime  @default(now())
+}
+
+model Atencion {
+  id         Int      @id @default(autoincrement())
+  pacienteId Int
+  paciente   Usuario  @relation("PacienteAtendido", fields: [pacienteId], references: [id])
+  medicoId   Int
+  medico     Usuario  @relation("MedicoQueAtiende", fields: [medicoId], references: [id])
+  lugar      String
+  pesoKg     Float
+  fecha      DateTime @default(now())
+  dosis      Dosis[]
+  createdAt  DateTime @default(now())
+}
+
+// Una dosis suministrada. Guarda el nombre, la via y la unidad tal como se dieron.
+model Dosis {
+  id            Int         @id @default(autoincrement())
+  atencionId    Int
+  atencion      Atencion    @relation(fields: [atencionId], references: [id], onDelete: Cascade)
+  medicamentoId Int
+  medicamento   Medicamento @relation(fields: [medicamentoId], references: [id])
+  nombre        String
+  via           String
+  cantidad      Float
+  unidad        String
+  hora          DateTime
+  createdAt     DateTime    @default(now())
+}
