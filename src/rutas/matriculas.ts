@@ -6,8 +6,6 @@ import { validarMatricula } from "../validaciones";
 export const rutasMatriculas = Router();
 
 // GET /api/matriculas/:matricula
-// Consulta el registro de matriculas: la app lo usa para verificar al medico mientras escribe.
-// Es publica porque el medico todavia no tiene cuenta cuando se registra.
 rutasMatriculas.get("/:matricula", async (req, res) => {
   const matricula = String(req.params.matricula);
   const error = validarMatricula(matricula);

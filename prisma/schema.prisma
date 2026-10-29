@@ -12,7 +12,7 @@ datasource db {
 model Usuario {
   id              Int        @id @default(autoincrement())
   rol             String
-  // pendiente (medico esperando aprobacion), aprobada o rechazada
+  // pendiente (medico esperando aprobacion), aprobada, rechazada o baja (el admin lo dio de baja; no se borra)
   estado          String     @default("aprobada")
   nombre          String
   email           String     @unique
@@ -64,32 +64,57 @@ model Matricula {
   createdAt    DateTime @default(now())
 }
 
+// Secciones del libro (anafilaxia, resucitacion, intubacion, etc.).
 model Categoria {
   id           Int           @id @default(autoincrement())
   clave        String        @unique
   nombre       String
+  nota         String?
   orden        Int
   medicamentos Medicamento[]
   createdAt    DateTime      @default(now())
 }
 
-// Datos tomados del libro de Medicamentos en Emergencias Pediatricas (fuente unica).
+// Cada indicacion de las tablas por peso del libro (un medicamento, un dispositivo, una correccion de electrolitos).
+// Las filas viejas del catalogo anterior quedan con activo = false para no perder el historial de atenciones.
 model Medicamento {
-  id              Int       @id @default(autoincrement())
+  id              Int          @id @default(autoincrement())
   categoriaId     Int
-  categoria       Categoria @relation(fields: [categoriaId], references: [id])
+  categoria       Categoria    @relation(fields: [categoriaId], references: [id])
   nombre          String
-  principioActivo String
-  viaCima         String
-  via             String
-  dosisPorKg      Float
-  dosisMaxima     Float?
-  unidad          String
-  nota            String
-  esCritico       Boolean   @default(false)
+  principioActivo String       @default("")
+  viaCima         String       @default("")
+  via             String       @default("")
+  esCritico       Boolean      @default(false)
+  activo          Boolean      @default(true)
   orden           Int
+  filas           FilaLibro[]
   dosis           Dosis[]
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime     @default(now())
+}
+
+// Lo que el libro imprime para un medicamento en la tabla de un peso (una fila por medicamento y peso).
+// Los textos se guardan tal cual figuran. cantidadMin y cantidadMax son la cantidad que se registra al suministrar
+// (iguales si es un solo valor): la dosis, o la cantidad principal en lo que no es una dosis unica
+// (infusiones, correcciones de electrolitos, descarga electrica, tubo endotraqueal).
+model FilaLibro {
+  id            Int         @id @default(autoincrement())
+  medicamentoId Int
+  medicamento   Medicamento @relation(fields: [medicamentoId], references: [id], onDelete: Cascade)
+  peso          Float
+  dosisKg       String      @default("")
+  indicar       String      @default("")
+  preparar      String      @default("")
+  administrar   String      @default("")
+  alerta        String      @default("")
+  detalle       String      @default("")
+  cantidadMin   Float
+  cantidadMax   Float
+  unidad        String
+  correccion    String      @default("")
+
+  @@unique([medicamentoId, peso])
+  @@index([peso])
 }
 
 model Atencion {
@@ -116,6 +141,7 @@ model Dosis {
   via           String
   cantidad      Float
   unidad        String
+  detalle       String      @default("")
   hora          DateTime
   createdAt     DateTime    @default(now())
 }

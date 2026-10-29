@@ -1,23 +1,21 @@
-import type { Prisma, Usuario } from "@prisma/client";
+import type { FilaLibro, Prisma, Usuario } from "@prisma/client";
 import { Router } from "express";
 
 import { autenticar, soloRol } from "../auth";
 import { prisma } from "../prisma";
+import { normalizarPeso } from "../libro";
 import { parseFecha, parseId, validarPeso } from "../validaciones";
 
 export const rutasAtenciones = Router();
 
 rutasAtenciones.use(autenticar);
 
-// Lo que se devuelve de cada atencion: el medico, y las dosis con su medicamento
-// (la app lo usa para mostrar las contraindicaciones desde el historial).
 const incluirAtencion = {
   medico: { select: { id: true, nombre: true } },
   dosis: { orderBy: { hora: "asc" as const }, include: { medicamento: true } },
 };
 
 // GET /api/atenciones?pacienteId=3
-// El paciente ve solo las suyas; el medico elige de que paciente.
 rutasAtenciones.get("/", soloRol("medico", "paciente"), async (req, res) => {
   const usuario: Usuario = res.locals.usuario;
   let pacienteId: number | null;
@@ -44,9 +42,14 @@ rutasAtenciones.get("/", soloRol("medico", "paciente"), async (req, res) => {
   res.json(atenciones);
 });
 
+// Lo que el libro indicaba para esa fila, para que el historial muestre mas que un numero
+function resumenDeLaFila(fila: FilaLibro): string {
+  const partes = [fila.dosisKg, fila.indicar, fila.administrar === "" ? "" : `Administrar ${fila.administrar}`, fila.preparar];
+  const lineas = fila.detalle === "" ? [] : fila.detalle.split("\n");
+  return [...partes, ...lineas].filter((parte) => parte !== "").join(" · ").slice(0, 600);
+}
+
 // POST /api/atenciones
-// El medico envia la atencion: las dosis que suministro a un paciente.
-// Se valida que ninguna dosis supere lo que da el peso (y el tope) del medicamento.
 rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
   const medico: Usuario = res.locals.usuario;
   const cuerpo = req.body ?? {};
@@ -62,10 +65,19 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
     res.status(400).json({ error: errorPeso });
     return;
   }
-  const pesoKg: number = cuerpo.pesoKg;
+  // La atencion se registra con el peso de la tabla del libro que corresponde (11,7 kg se registra como 11 kg)
+  const pesoKg = normalizarPeso(cuerpo.pesoKg);
+  if (pesoKg === null) {
+    res.status(400).json({ error: "El peso es menor al de las tablas del libro" });
+    return;
+  }
 
   if (!Array.isArray(cuerpo.dosis) || cuerpo.dosis.length === 0) {
     res.status(400).json({ error: "Falta suministrar al menos una dosis" });
+    return;
+  }
+  if (cuerpo.dosis.length > 50) {
+    res.status(400).json({ error: "Hay demasiadas dosis en una sola atención" });
     return;
   }
 
@@ -75,7 +87,6 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
     return;
   }
 
-  // Se buscan todos los medicamentos de una vez.
   const ids: number[] = [];
   for (const item of cuerpo.dosis) {
     const medicamentoId = parseId(item?.medicamentoId);
@@ -85,7 +96,10 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
     }
     ids.push(medicamentoId);
   }
-  const medicamentos = await prisma.medicamento.findMany({ where: { id: { in: ids } } });
+  const medicamentos = await prisma.medicamento.findMany({
+    where: { id: { in: ids } },
+    include: { filas: { where: { peso: pesoKg } } },
+  });
 
   const dosisParaCrear: Prisma.DosisUncheckedCreateWithoutAtencionInput[] = [];
   for (const item of cuerpo.dosis) {
@@ -101,13 +115,14 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
       return;
     }
 
-    // Mismo calculo que la calculadora: peso x dosis por kg, con tope en la dosis maxima.
-    let calculada = pesoKg * medicamento.dosisPorKg;
-    if (medicamento.dosisMaxima !== null && calculada > medicamento.dosisMaxima) {
-      calculada = medicamento.dosisMaxima;
+    // La dosis tiene que estar dentro de lo que el libro indica para ese medicamento y ese peso
+    const fila = medicamento.filas[0];
+    if (!fila) {
+      res.status(400).json({ error: `El libro no tiene ${medicamento.nombre} en la tabla de ${pesoKg} kg` });
+      return;
     }
-    if (cantidad > calculada * 1.001) {
-      res.status(400).json({ error: `La dosis de ${medicamento.nombre} supera la calculada para el peso` });
+    if (cantidad < fila.cantidadMin * 0.999 || cantidad > fila.cantidadMax * 1.001) {
+      res.status(400).json({ error: `La dosis de ${medicamento.nombre} no coincide con la del libro para ${pesoKg} kg` });
       return;
     }
 
@@ -122,7 +137,8 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
       nombre: medicamento.nombre,
       via: medicamento.via,
       cantidad,
-      unidad: medicamento.unidad,
+      unidad: fila.unidad,
+      detalle: resumenDeLaFila(fila),
       hora,
     });
   }
@@ -142,6 +158,5 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
     });
   });
 
-  // 201 indica que se creo un recurso nuevo.
   res.status(201).json(atencion);
 });

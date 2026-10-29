@@ -14,7 +14,6 @@ rutasQr.use(autenticar);
 const MINUTOS_DE_VIDA = 5;
 
 // POST /api/qr
-// El paciente pide un codigo nuevo para mostrar en su QR.
 rutasQr.post("/", soloRol("paciente"), async (_req, res) => {
   const paciente: Usuario = res.locals.usuario;
 
@@ -29,7 +28,6 @@ rutasQr.post("/", soloRol("paciente"), async (_req, res) => {
 });
 
 // POST /api/qr/leer
-// El medico manda el codigo leido con la camara y recibe al paciente.
 rutasQr.post("/leer", soloRol("medico"), async (req, res) => {
   const codigo = texto(req.body?.codigo);
   if (codigo === "") {

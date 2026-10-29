@@ -4,7 +4,6 @@ import type { Alergia, Usuario } from "@prisma/client";
 
 import { prisma } from "./prisma";
 
-// Secreto para firmar los tokens: sale de backend/.env.
 const secreto = process.env.JWT_SECRET;
 if (!secreto) {
   throw new Error("Falta JWT_SECRET en el archivo .env");
@@ -15,15 +14,13 @@ export function crearToken(usuario: Usuario): string {
   return jwt.sign({ id: usuario.id, rol: usuario.rol }, secreto as string, { expiresIn: "7d" });
 }
 
-// Usuario sin la contrasena y con las alergias como lista de textos.
-// Es lo unico que sale de la API: el hash nunca se devuelve.
+// Es lo unico que sale de la API: el hash de la contrasena nunca se devuelve.
 export function usuarioPublico(usuario: Usuario & { alergias?: Alergia[] }) {
   const { contrasena, alergias, ...datos } = usuario;
   return { ...datos, alergias: (alergias ?? []).map((alergia) => alergia.nombre) };
 }
 
-// Middleware: exige "Authorization: Bearer <token>", carga al usuario y deja pasar solo cuentas aprobadas.
-// El usuario queda en res.locals.usuario para las rutas.
+// Exige "Authorization: Bearer <token>" y deja el usuario en res.locals.usuario. Solo pasan cuentas aprobadas.
 export async function autenticar(req: Request, res: Response, next: NextFunction): Promise<void> {
   const cabecera = req.headers.authorization ?? "";
   if (!cabecera.startsWith("Bearer ")) {
@@ -50,7 +47,6 @@ export async function autenticar(req: Request, res: Response, next: NextFunction
   next();
 }
 
-// Middleware: solo deja pasar a los roles indicados (403 si el rol no corresponde).
 export function soloRol(...roles: string[]) {
   return (_req: Request, res: Response, next: NextFunction): void => {
     const usuario = res.locals.usuario as Usuario;

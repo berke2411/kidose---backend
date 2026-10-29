@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db:init": "prisma db push && ts-node src/initDb.ts"
+    "verificar:libro": "ts-node scripts/verificar-libro.ts",
+    "db:init": "prisma db push --accept-data-loss && ts-node src/initDb.ts"
   },
   "repository": {
     "type": "git",

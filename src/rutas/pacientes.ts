@@ -3,13 +3,13 @@ import { Router } from "express";
 
 import { autenticar, soloRol, usuarioPublico } from "../auth";
 import { prisma } from "../prisma";
+import { esAlergenoDelLibro, normalizarPeso } from "../libro";
 import { limpiarAlergias, parseId, validarPeso } from "../validaciones";
 
 export const rutasPacientes = Router();
 
 rutasPacientes.use(autenticar, soloRol("medico", "paciente"));
 
-// Un medico puede ver a cualquier paciente; un paciente, solo a si mismo.
 function puedeAcceder(usuario: Usuario, pacienteId: number): boolean {
   return usuario.rol === "medico" || usuario.id === pacienteId;
 }
@@ -38,8 +38,6 @@ rutasPacientes.get("/:id", async (req, res) => {
 });
 
 // PATCH /api/pacientes/:id
-// Actualiza solo lo enviado. El peso lo pueden corregir el medico y el paciente;
-// las alergias, solo el propio paciente.
 rutasPacientes.patch("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {
@@ -61,7 +59,7 @@ rutasPacientes.patch("/:id", async (req, res) => {
       res.status(400).json({ error });
       return;
     }
-    data.pesoKg = pesoKg;
+    data.pesoKg = normalizarPeso(pesoKg) ?? undefined;
   }
 
   let nuevasAlergias: string[] | null = null;
@@ -82,9 +80,16 @@ rutasPacientes.patch("/:id", async (req, res) => {
     return;
   }
 
-  const existe = await prisma.usuario.findFirst({ where: { id, rol: "paciente" } });
+  const existe = await prisma.usuario.findFirst({ where: { id, rol: "paciente" }, include: { alergias: true } });
   if (!existe) {
     res.status(404).json({ error: "No existe el paciente" });
+    return;
+  }
+
+  // Las alergias nuevas tienen que ser de la lista del libro
+  const yaCargadas = existe.alergias.map((alergia) => alergia.nombre.toLowerCase());
+  if (nuevasAlergias !== null && !nuevasAlergias.every((nombre) => esAlergenoDelLibro(nombre) || yaCargadas.includes(nombre.toLowerCase()))) {
+    res.status(400).json({ error: "Las alergias tienen que ser de la lista del libro" });
     return;
   }
 

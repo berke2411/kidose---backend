@@ -1,41 +1,116 @@
+import type { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-import { CATEGORIAS_SEMILLA, MATRICULAS_SEMILLA } from "./datos-semilla";
+import { ALERGENOS, IDENTIDADES, MATRICULAS_SEMILLA } from "./datos-semilla";
+import { cargarPesos, leerJson, normalizarPeso } from "./libro";
 import { prisma } from "./prisma";
 
-// Carga los datos iniciales. Las tablas las crea Prisma (npx prisma db push, que ya
-// incluye "npm run db:init"). Se puede ejecutar muchas veces: no duplica ni borra nada.
+// Carga los datos iniciales. Se puede ejecutar muchas veces: no duplica los usuarios ni las matriculas.
 
-// Los medicamentos se actualizan siempre desde datos-semilla.ts, que es la fuente de verdad.
-async function sembrarMedicamentos(): Promise<void> {
-  for (const [ordenCategoria, categoria] of CATEGORIAS_SEMILLA.entries()) {
+type FilaJson = {
+  nombre: string;
+  dosisKg?: string;
+  indicar?: string;
+  preparar?: string;
+  administrar?: string;
+  alerta?: string;
+  detalle?: string[];
+  cantidadMin: number;
+  cantidadMax: number;
+  unidad: string;
+};
+
+type LibroJson = {
+  categorias: { clave: string; nombre: string; nota?: string }[];
+  correcciones: { peso: number; seccion: string; item: string; libro: string; motivo: string }[];
+  tablas: { peso: number; secciones: Record<string, FilaJson[]> }[];
+};
+
+// Carga el catalogo y las tablas por peso desde data/libro.json (extraido del libro).
+// Las tablas se reemplazan enteras en cada arranque: son datos de referencia, no se editan en la app.
+async function sembrarLibro(): Promise<void> {
+  const libro = leerJson<LibroJson>("libro.json");
+  const idsActivos: number[] = [];
+  const porNombre = new Map<string, number>();
+
+  for (const [ordenCategoria, categoria] of libro.categorias.entries()) {
     const guardada = await prisma.categoria.upsert({
       where: { clave: categoria.clave },
-      update: { nombre: categoria.nombre, orden: ordenCategoria },
-      create: { clave: categoria.clave, nombre: categoria.nombre, orden: ordenCategoria },
+      update: { nombre: categoria.nombre, nota: categoria.nota ?? null, orden: ordenCategoria },
+      create: { clave: categoria.clave, nombre: categoria.nombre, nota: categoria.nota ?? null, orden: ordenCategoria },
     });
 
-    for (const [orden, medicamento] of categoria.medicamentos.entries()) {
+    for (const [orden, identidad] of (IDENTIDADES[categoria.clave] ?? []).entries()) {
       const datos = {
-        nombre: medicamento.nombre,
-        principioActivo: medicamento.principioActivo,
-        viaCima: medicamento.viaCima,
-        via: medicamento.via,
-        dosisPorKg: medicamento.dosisPorKg,
-        dosisMaxima: medicamento.dosisMaxima,
-        unidad: medicamento.unidad,
-        nota: medicamento.nota,
-        esCritico: medicamento.esCritico ?? false,
+        principioActivo: identidad.principioActivo ?? "",
+        viaCima: identidad.viaCima ?? "",
+        via: identidad.via,
+        esCritico: identidad.esCritico ?? false,
+        activo: true,
         orden,
       };
-      const existente = await prisma.medicamento.findFirst({
-        where: { categoriaId: guardada.id, nombre: medicamento.nombre },
-      });
-      if (existente) {
-        await prisma.medicamento.update({ where: { id: existente.id }, data: datos });
-      } else {
-        await prisma.medicamento.create({ data: { ...datos, categoriaId: guardada.id } });
+      const existente = await prisma.medicamento.findFirst({ where: { categoriaId: guardada.id, nombre: identidad.nombre } });
+      const medicamento = existente
+        ? await prisma.medicamento.update({ where: { id: existente.id }, data: datos })
+        : await prisma.medicamento.create({ data: { ...datos, nombre: identidad.nombre, categoriaId: guardada.id } });
+      idsActivos.push(medicamento.id);
+      porNombre.set(`${categoria.clave}/${identidad.nombre}`, medicamento.id);
+    }
+  }
+
+  // El catalogo anterior queda oculto (no se borra: las atenciones viejas lo usan)
+  await prisma.medicamento.updateMany({ where: { id: { notIn: idsActivos } }, data: { activo: false } });
+
+  const filas: Prisma.FilaLibroCreateManyInput[] = [];
+  for (const tabla of libro.tablas) {
+    for (const [seccion, items] of Object.entries(tabla.secciones)) {
+      for (const item of items) {
+        const medicamentoId = porNombre.get(`${seccion}/${item.nombre}`);
+        if (medicamentoId === undefined) throw new Error(`Falta la identidad de ${seccion}/${item.nombre}`);
+        const correccion = libro.correcciones.find(
+          (otra) => otra.peso === tabla.peso && otra.seccion === seccion && otra.item === item.nombre
+        );
+        filas.push({
+          medicamentoId,
+          peso: tabla.peso,
+          dosisKg: item.dosisKg ?? "",
+          indicar: item.indicar ?? "",
+          preparar: item.preparar ?? "",
+          administrar: item.administrar ?? "",
+          alerta: item.alerta ?? "",
+          detalle: (item.detalle ?? []).join("\n"),
+          cantidadMin: item.cantidadMin,
+          cantidadMax: item.cantidadMax,
+          unidad: item.unidad,
+          correccion: correccion ? `El libro imprime «${correccion.libro}» (${correccion.motivo}).` : "",
+        });
       }
+    }
+  }
+
+  const tandas = Array.from({ length: Math.ceil(filas.length / 400) }, (_, i) => filas.slice(i * 400, (i + 1) * 400));
+  await prisma.$transaction([prisma.filaLibro.deleteMany(), ...tandas.map((data) => prisma.filaLibro.createMany({ data }))]);
+  await cargarPesos();
+}
+
+// Las alergias que no figuran en el libro no afectan a ninguna dosis: se sacan de los pacientes cargados antes
+async function limpiarAlergiasFueraDelLibro(): Promise<void> {
+  const nombres = ALERGENOS.map((alergeno) => alergeno.nombre);
+  await prisma.alergia.deleteMany({ where: { nombre: { notIn: nombres } } });
+}
+
+// Las dosis registradas antes de guardar el detalle no tienen de donde sacarlo
+async function completarDetalleDeDosis(): Promise<void> {
+  await prisma.dosis.updateMany({ where: { detalle: "" }, data: { detalle: "Registrada antes de usar las tablas del libro" } });
+}
+
+// Los pacientes cargados antes de usar las tablas del libro pueden tener pesos que no figuran en ellas
+async function normalizarPesosDePacientes(): Promise<void> {
+  const pacientes = await prisma.usuario.findMany({ where: { pesoKg: { not: null } }, select: { id: true, pesoKg: true } });
+  for (const paciente of pacientes) {
+    const peso = normalizarPeso(paciente.pesoKg as number);
+    if (peso !== null && peso !== paciente.pesoKg) {
+      await prisma.usuario.update({ where: { id: paciente.id }, data: { pesoKg: peso } });
     }
   }
 }
@@ -50,7 +125,6 @@ async function sembrarMatriculas(): Promise<void> {
   }
 }
 
-// Crea las cuentas de prueba solo si todavia no existen.
 async function sembrarUsuarios(): Promise<void> {
   if (await prisma.usuario.findUnique({ where: { email: "admin@kidose.com" } })) return;
 
@@ -102,23 +176,21 @@ async function sembrarUsuarios(): Promise<void> {
       latitud: -34.5957,
       longitud: -58.3835,
       pesoKg: 14,
-      alergias: { create: [{ nombre: "Penicilina" }, { nombre: "Látex" }] },
+      alergias: { create: [{ nombre: "Ketamina" }, { nombre: "Midazolam" }] },
     },
   });
 
-  // Historial de ejemplo, con las dosis que da la calculadora para 14 kg.
-  const metilprednisolona = await prisma.medicamento.findFirstOrThrow({ where: { nombre: "Metilprednisolona" } });
-  const magnesio = await prisma.medicamento.findFirstOrThrow({ where: { nombre: "Sulfato de magnesio" } });
-  const midazolam = await prisma.medicamento.findFirstOrThrow({ where: { nombre: "Midazolam IV / IM" } });
-  const levetiracetam = await prisma.medicamento.findFirstOrThrow({ where: { nombre: "Levetiracetam" } });
-
-  function dosis(medicamento: typeof magnesio, hora: string) {
+  // Historial de ejemplo: las dosis que da la tabla del libro para 14 kg
+  async function dosis(nombre: string, hora: string) {
+    const medicamento = await prisma.medicamento.findFirstOrThrow({ where: { nombre, activo: true } });
+    const fila = await prisma.filaLibro.findFirstOrThrow({ where: { medicamentoId: medicamento.id, peso: 14 } });
     return {
       medicamentoId: medicamento.id,
       nombre: medicamento.nombre,
       via: medicamento.via,
-      cantidad: Math.round(14 * medicamento.dosisPorKg * 1000) / 1000,
-      unidad: medicamento.unidad,
+      cantidad: fila.cantidadMax as number,
+      unidad: fila.unidad,
+      detalle: [fila.dosisKg, fila.indicar, fila.preparar].filter((parte) => parte !== "").join(" · "),
       hora: new Date(hora),
     };
   }
@@ -131,7 +203,7 @@ async function sembrarUsuarios(): Promise<void> {
       pesoKg: 14,
       fecha: new Date("2026-05-03T12:40:00Z"),
       dosis: {
-        create: [dosis(metilprednisolona, "2026-05-03T12:40:00Z"), dosis(magnesio, "2026-05-03T12:55:00Z")],
+        create: [await dosis("Metilprednisolona", "2026-05-03T12:40:00Z"), await dosis("Sulfato de magnesio (asma)", "2026-05-03T12:55:00Z")],
       },
     },
   });
@@ -143,7 +215,7 @@ async function sembrarUsuarios(): Promise<void> {
       pesoKg: 14,
       fecha: new Date("2026-08-12T00:05:00Z"),
       dosis: {
-        create: [dosis(midazolam, "2026-08-12T00:05:00Z"), dosis(levetiracetam, "2026-08-12T00:20:00Z")],
+        create: [await dosis("Midazolam IV / IM", "2026-08-12T00:05:00Z"), await dosis("Levetiracetam", "2026-08-12T00:20:00Z")],
       },
     },
   });
@@ -151,11 +223,13 @@ async function sembrarUsuarios(): Promise<void> {
 
 export async function initDatabase(): Promise<void> {
   await sembrarMatriculas();
-  await sembrarMedicamentos();
+  await sembrarLibro();
   await sembrarUsuarios();
+  await normalizarPesosDePacientes();
+  await limpiarAlergiasFueraDelLibro();
+  await completarDetalleDeDosis();
 }
 
-// Permite correrlo a mano con "npm run db:init".
 if (require.main === module) {
   initDatabase()
     .then(() => {

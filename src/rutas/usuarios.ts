@@ -6,13 +6,19 @@ import { parseId, texto } from "../validaciones";
 
 export const rutasUsuarios = Router();
 
-// Todo lo de este archivo es solo para administradores.
 rutasUsuarios.use(autenticar, soloRol("admin"));
 
-const ESTADOS = ["pendiente", "aprobada", "rechazada"];
+const ESTADOS = ["pendiente", "aprobada", "rechazada", "baja"];
+
+// A que estados se puede pasar desde cada uno. Nunca se borra un medico: la baja solo cambia su estado.
+const TRANSICIONES: Record<string, string[]> = {
+  pendiente: ["aprobada", "rechazada"],
+  aprobada: ["baja"],
+  baja: ["aprobada"],
+  rechazada: [],
+};
 
 // GET /api/usuarios?estado=pendiente
-// Lista las cuentas de medicos, opcionalmente filtradas por estado.
 rutasUsuarios.get("/", async (req, res) => {
   const estado = texto(req.query.estado);
   if (estado !== "" && !ESTADOS.includes(estado)) {
@@ -28,7 +34,6 @@ rutasUsuarios.get("/", async (req, res) => {
 });
 
 // PATCH /api/usuarios/:id
-// Aprueba o rechaza la solicitud de un medico.
 rutasUsuarios.patch("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {
@@ -37,14 +42,19 @@ rutasUsuarios.patch("/:id", async (req, res) => {
   }
 
   const estado = texto(req.body?.estado);
-  if (estado !== "aprobada" && estado !== "rechazada") {
-    res.status(400).json({ error: "El estado debe ser aprobada o rechazada" });
+  if (estado !== "aprobada" && estado !== "rechazada" && estado !== "baja") {
+    res.status(400).json({ error: "El estado debe ser aprobada, rechazada o baja" });
     return;
   }
 
   const medico = await prisma.usuario.findUnique({ where: { id } });
   if (!medico || medico.rol !== "medico") {
     res.status(404).json({ error: "No existe la solicitud" });
+    return;
+  }
+
+  if (!(TRANSICIONES[medico.estado] ?? []).includes(estado)) {
+    res.status(409).json({ error: `No se puede pasar una cuenta de ${medico.estado} a ${estado}` });
     return;
   }
 

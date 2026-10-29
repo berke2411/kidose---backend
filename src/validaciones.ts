@@ -1,25 +1,20 @@
-// Funciones de validacion. Cada una devuelve un mensaje de error, o null si el dato esta bien.
-// Sin regex ni librerias: se revisa a mano, igual que en la app.
 
-// Convierte el parametro :id de la URL a un numero seguro para Prisma.
 export function parseId(value: unknown): number | null {
   const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : null;
+  // 2147483647 es el mayor entero que entra en la base
+  return Number.isInteger(id) && id > 0 && id <= 2147483647 ? id : null;
 }
 
-// Convierte una fecha recibida como texto y evita guardar fechas invalidas.
 export function parseFecha(value: unknown): Date | null {
   if (typeof value !== "string" || value.trim() === "") return null;
   const fecha = new Date(value);
   return Number.isNaN(fecha.getTime()) ? null : fecha;
 }
 
-// Texto recortado; si no llego nada, queda vacio.
 export function texto(value: unknown): string {
   return String(value ?? "").trim();
 }
 
-// true si el texto tiene al menos un caracter y todos son numeros
 function soloNumeros(valor: string): boolean {
   return valor !== "" && valor.split("").every((letra) => letra >= "0" && letra <= "9");
 }
@@ -27,7 +22,6 @@ function soloNumeros(valor: string): boolean {
 export function validarEmail(email: string): string | null {
   if (email === "") return "Falta el email";
 
-  // Tiene que ser "algo@dominio.ext": una sola arroba, sin espacios
   const partes = email.split("@");
   if (email.includes(" ") || partes.length !== 2) return "El email no es válido";
 
@@ -74,9 +68,9 @@ export function nombresIguales(a: string, b: string): boolean {
 
 function normalizarNombre(nombre: string): string {
   const sinTildes = nombre
-    .normalize("NFD") // separa la tilde de la letra
+    .normalize("NFD")
     .split("")
-    .filter((letra) => letra < "̀" || letra > "ͯ") // saca las tildes
+    .filter((letra) => letra < "̀" || letra > "ͯ")
     .join("");
   return sinTildes
     .toLowerCase()
@@ -97,7 +91,6 @@ export function validarPeso(valor: unknown): string | null {
   return null;
 }
 
-// Lista de alergias: texto recortado, sin vacios ni repetidas. Devuelve null si no es una lista de textos.
 export function limpiarAlergias(valor: unknown): string[] | null {
   if (!Array.isArray(valor)) return null;
   const alergias: string[] = [];

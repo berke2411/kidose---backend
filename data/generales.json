@@ -1,0 +1,506 @@
+{
+  "avisos": [
+    "Este libro NO está específicamente diseñado para su uso en la reanimación de recién nacidos.",
+    "Este libro no sustituye la capacitación y experiencia adecuadas. Su objetivo es reducir el riesgo de errores al solicitar o administrar medicamentos en una situación de emergencia.",
+    "Preste especial cuidado a pacientes inestables: frente a la mayoría de las causas de hipotensión, es correcto administrar carga de volumen antes de la infusión de vasopresores. Las dosis estándar de medicamentos para la intubación pueden ser potencialmente mortales en caso de hipotensión grave, sepsis o enfermedad cardíaca subyacente, en particular con tiopental, propofol, fentanilo y midazolam. Evalúe la dosis según necesidad y monitoree la respuesta con cuidado.",
+    "En lactantes y niños pequeños, las infusiones a menudo comienzan a dosis bajas. Las tubuladuras de infusión pueden necesitar ser cebadas/purgadas. Las dosis de los medicamentos en bolo y las infusiones deben ser evaluadas durante la atención del paciente para garantizar que tengan efecto terapéutico.",
+    "Dosis para «Adultos» se refieren a pesos de 50 kg o más (existe variación según fármacos/medicación). Las dosis han sido redondeadas en un solo decimal en la mayoría de los casos."
+  ],
+  "edadPeso": [
+    { "edad": "RN (término)", "etiqueta": "RN", "kg": 3.5, "texto": "3,5" },
+    { "edad": "1 mes", "etiqueta": "1 m", "kg": 4.5, "texto": "4,5" },
+    { "edad": "3 meses", "etiqueta": "3 m", "kg": 6, "texto": "6" },
+    { "edad": "6 meses", "etiqueta": "6 m", "kg": 7, "texto": "7-8" },
+    { "edad": "12 meses", "etiqueta": "12 m", "kg": 9, "texto": "9-10" },
+    { "edad": "18 meses", "etiqueta": "18 m", "kg": 11, "texto": "11" },
+    { "edad": "2 años", "etiqueta": "2 a", "kg": 12, "texto": "12" },
+    { "edad": "3 años", "etiqueta": "3 a", "kg": 14, "texto": "14" },
+    { "edad": "4 años", "etiqueta": "4 a", "kg": 16, "texto": "16" },
+    { "edad": "5 años", "etiqueta": "5 a", "kg": 18, "texto": "18-20" },
+    { "edad": "8 años", "etiqueta": "8 a", "kg": 25, "texto": "25" },
+    { "edad": "10 años", "etiqueta": "10 a", "kg": 30, "texto": "30-32" }
+  ],
+  "formulas": [
+    { "nombre": "TET sin balón", "texto": "(Edad/4) + 4" },
+    { "nombre": "TET con balón", "texto": "(Edad/4) + 3,5" },
+    { "nombre": "Profundidad de inserción en labio", "texto": "(Edad/2) + 12, aproximadamente" },
+    { "nombre": "Profundidad de inserción en nariz", "texto": "(Edad/2) + 15, aproximadamente" }
+  ],
+  "fichas": [
+    {
+      "clave": "algoritmos",
+      "nombre": "Algoritmos",
+      "items": [
+        {
+          "nombre": "Soporte vital básico pediátrico",
+          "pasos": [
+            "P: ¿Peligro?",
+            "R: ¿Responde?",
+            "A: ¡Pida ayuda!",
+            "A: Abra la vía aérea",
+            "R: ¿Respira normalmente? Dar 2 ventilaciones",
+            "C: Compruebe signos vitales (+/- compruebe pulso). Inicie RCP: 15 compresiones : 2 respiraciones",
+            "D: Desfibrilador / monitor. Asegúrese de que llegue ayuda"
+          ]
+        },
+        {
+          "nombre": "Soporte vital avanzado: ritmo desfibrilable (FV / TV sin pulso)",
+          "pasos": [
+            "Continúe RCP con mínimas interrupciones. Colocar desfibrilador/monitor y evaluar ritmo.",
+            "Descarga eléctrica (4 J/kg). Reinicie RCP con mínimas interrupciones.",
+            "Adrenalina después de la 2.ª descarga eléctrica (luego del 2.º ciclo y cada 2 ciclos).",
+            "Amiodarona después del 3.er ciclo.",
+            "Continúe RCP por 2 min."
+          ],
+          "calc": [
+            { "etiqueta": "Descarga eléctrica", "porKg": [4], "unidad": "J" },
+            { "etiqueta": "Adrenalina", "porKg": [0.01], "unidad": "mg" },
+            { "etiqueta": "Amiodarona", "porKg": [5], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Soporte vital avanzado: ritmo no desfibrilable (AEP / asistolia)",
+          "pasos": [
+            "Reinicie RCP con mínimas interrupciones.",
+            "Adrenalina cada 2 ciclos.",
+            "Continúe RCP por 2 min."
+          ],
+          "calc": [{ "etiqueta": "Adrenalina", "porKg": [0.01], "unidad": "mg" }]
+        },
+        {
+          "nombre": "Soporte vital avanzado: durante la RCP",
+          "pasos": [
+            "Vía aérea (ML/TET), oxígeno, capnografía, acceso IV/IO.",
+            "Minimizar interrupciones en RCP. Planifique cualquier acción ANTES de interrumpir las compresiones (por ej. carga manual del desfibrilador).",
+            "Sospeche y corrija: hipoxia, hipovolemia, hipoglucemia, híper/hipocalcemia/desórdenes metabólicos, hipotermia/hipertermia, neumotórax a tensión, taponamiento cardíaco, tóxicos, trombosis (pulmonar/coronaria)."
+          ]
+        },
+        {
+          "nombre": "Soporte vital avanzado: retorno de la circulación espontánea",
+          "pasos": [
+            "Cuidados pos-reanimación: reevaluar ABCDE.",
+            "Electrocardiograma de 12 derivaciones.",
+            "Tratar las causas desencadenantes.",
+            "Reevaluar oxigenación y ventilación.",
+            "Controlar temperatura."
+          ]
+        },
+        {
+          "nombre": "Estatus epiléptico: paso 1 (5 min después de iniciar la convulsión)",
+          "pasos": [
+            "Vía aérea. Oxígeno de alto flujo. SIEMPRE mida glicemia.",
+            "Con acceso vascular, o rápidamente colocado: midazolam IV o IO.",
+            "Sin acceso vascular: midazolam (bucal) o diazepam (rectal)."
+          ],
+          "calc": [
+            { "etiqueta": "Midazolam IV / IO", "porKg": [0.1], "unidad": "mg" },
+            { "etiqueta": "Midazolam bucal", "porKg": [0.5], "unidad": "mg" },
+            { "etiqueta": "Diazepam rectal", "porKg": [0.5], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Estatus epiléptico: paso 2 (10 min después del comienzo del paso 1)",
+          "pasos": [
+            "¿Persiste la convulsión? No: controlar.",
+            "Sí: midazolam IV/IO. Pida ayuda.",
+            "Opcional: paraldehído, mezcla 50:50 con aceite; dar mientras se prepara la infusión de fenitoína. El uso no debe retrasar la fenitoína.",
+            "¿Recibe fenitoína? No: preparar fenitoína. Sí: preparar fenobarbital."
+          ],
+          "calc": [
+            { "etiqueta": "Midazolam IV / IO", "porKg": [0.1], "unidad": "mg" },
+            { "etiqueta": "Paraldehído (mezcla 50:50 con aceite)", "porKg": [0.8], "unidad": "mL" }
+          ]
+        },
+        {
+          "nombre": "Estatus epiléptico: paso 3 (10 min después del comienzo del paso 2)",
+          "pasos": [
+            "¿Persiste la convulsión? Confirme que es un ataque epiléptico.",
+            "Solicitar ayuda a especialista (anestesia/UCI).",
+            "No recibe fenitoína: administrar fenitoína IV/IO en 20 minutos.",
+            "Recibe fenitoína: administrar fenobarbital IV/IO en 20 minutos."
+          ],
+          "calc": [
+            { "etiqueta": "Fenitoína", "porKg": [20], "unidad": "mg", "tope": 1500 },
+            { "etiqueta": "Fenobarbital", "porKg": [20], "unidad": "mg", "tope": 1000 }
+          ]
+        },
+        {
+          "nombre": "Estatus epiléptico: paso 4 (20 min después del paso 3, inicio de la infusión)",
+          "pasos": [
+            "¿Persiste la convulsión? Un anestesista debe estar presente.",
+            "SIR con tiopental."
+          ]
+        },
+        {
+          "nombre": "Excitación psicomotriz: primeros pasos",
+          "pasos": [
+            "Contención verbal exitosa: continuar evaluación en un área segura.",
+            "Si no: ¿el paciente acepta la sedación oral (preferiblemente con su medicación habitual)? Sí: sedación oral. No: sedación parenteral.",
+            "Ketamina se puede administrar como primera droga en casos de agitación extrema, aunque existe riesgo en relación con la seguridad.",
+            "Todos los medicamentos indicados son adecuados para todas las causas de agitación, incluida la intoxicación por drogas recreacionales."
+          ]
+        },
+        {
+          "nombre": "Excitación psicomotriz: sedación oral (1 sola dosis)",
+          "pasos": [
+            "Repetir (según necesidad) en 30 minutos.",
+            "Pasar a la sedación parenteral si el paciente no se tranquiliza en 45 minutos o el comportamiento se intensifica."
+          ],
+          "calc": [
+            { "etiqueta": "Olanzapina (menos de 40 kg)", "fija": [2.5, 5], "unidad": "mg", "pesoHasta": 35 },
+            { "etiqueta": "Olanzapina (más de 40 kg)", "fija": [5, 10], "unidad": "mg", "pesoDesde": 45 },
+            { "etiqueta": "Lorazepam (menos de 40 kg)", "fija": [0.5, 1], "unidad": "mg", "pesoHasta": 35 },
+            { "etiqueta": "Lorazepam (más de 40 kg)", "fija": [1, 2.5], "unidad": "mg", "pesoDesde": 45 },
+            { "etiqueta": "Quetiapina (dosis máxima 10 mg/kg/24 h)", "porKg": [5, 10], "unidad": "mg" },
+            { "etiqueta": "Diazepam", "porKg": [0.2, 0.4], "unidad": "mg", "tope": 10 },
+            { "etiqueta": "Risperidona", "porKg": [0.02, 0.04], "unidad": "mg", "tope": 2 }
+          ]
+        },
+        {
+          "nombre": "Excitación psicomotriz: sedación parenteral",
+          "pasos": [
+            "Reúna los recursos necesarios.",
+            "Droperidol IM u olanzapina IM.",
+            "Repetir en 15 minutos si el paciente no se tranquiliza. Movilizar al paciente a un área con monitoreo."
+          ],
+          "calc": [
+            { "etiqueta": "Droperidol IM", "porKg": [0.1, 0.2], "unidad": "mg", "tope": 10 },
+            { "etiqueta": "Olanzapina IM (menos de 40 kg)", "fija": [5], "unidad": "mg", "pesoHasta": 35 },
+            { "etiqueta": "Olanzapina IM (más de 40 kg)", "fija": [10], "unidad": "mg", "pesoDesde": 45 }
+          ]
+        },
+        {
+          "nombre": "Excitación psicomotriz: agentes de tercera línea",
+          "pasos": [
+            "Si el paciente no se tranquiliza después de 2 dosis de medicación IM."
+          ],
+          "calc": [
+            { "etiqueta": "Ketamina IM", "porKg": [4], "unidad": "mg", "tope": 400 },
+            { "etiqueta": "Ketamina IV", "porKg": [1], "unidad": "mg", "tope": 100 },
+            { "etiqueta": "Midazolam IM / IV (dosis máxima 20 mg en 24 horas)", "porKg": [0.1, 0.2], "unidad": "mg", "tope": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "clave": "otros",
+      "nombre": "Otros medicamentos útiles",
+      "items": [
+        {
+          "nombre": "Omeprazol",
+          "info": "Ver indicación para «Hemorragia gastrointestinal» en tabla homónima. Niños de 1 mes a 12 años: 0,5-2 mg/kg/dosis VO/IV cada 24 horas. ≥ 12 años: 40 mg VO/IV cada 24 horas. Esofagitis: 0,5 mg/kg/día; úlcera duodenal: 0,5 mg/kg cada 12 horas. Para infusión EV: reconstituir el polvo con 10 ml de SF/Dx5%. Tomar la dosis indicada y diluir con SF/Dx5% a una concentración de 0,4 mg/ml; administrar en 30 minutos. Estabilidad con SF: 12 horas; estabilidad con Dx5%: 6 horas.",
+          "calc": [{ "etiqueta": "Dosis cada 24 horas (1 mes a 12 años)", "porKg": [0.5, 2], "unidad": "mg", "tope": 40 }]
+        },
+        {
+          "nombre": "Metoclopramida",
+          "info": "< 14 años: 0,1-0,2 mg/kg VO/IV/IM cada 8 horas, dosis máxima 10 mg cada 8 horas. > 14 años: 10 mg VO/IV/IM cada 8 horas.",
+          "calc": [{ "etiqueta": "Dosis cada 8 horas (menores de 14 años)", "porKg": [0.1, 0.2], "unidad": "mg", "tope": 10 }]
+        },
+        {
+          "nombre": "Ondansetrón: náuseas y vómitos postoperatorios",
+          "info": "Pacientes de 1 mes a 12 años y < 40 kg: 0,1 mg/kg IV cada 8 horas; > 12 años: 4 mg IV cada 8 horas. Usar concentración 1-2 mg/mL. Administrar en bolo en 2-5 minutos o por infusión diluido en Dx5%/SF en 15 minutos.",
+          "calc": [{ "etiqueta": "Dosis cada 8 horas (IV)", "porKg": [0.1], "unidad": "mg", "tope": 4 }]
+        },
+        {
+          "nombre": "Ondansetrón: náuseas y vómitos por quimioterapia",
+          "info": "Pacientes de 1 mes a 4 años: 5 mg/m2/dosis o 0,15 mg/kg/dosis IV cada 8 horas; 4-12 años: 4 mg IV cada 8 horas; > 12 años: 8 mg IV cada 8 horas. Usar concentración 1-2 mg/mL. Administrar en bolo en 2-5 minutos o por infusión diluido en Dx5%/SF en 15 minutos.",
+          "calc": [{ "etiqueta": "Dosis cada 8 horas (1 mes a 4 años, por kg)", "porKg": [0.15], "unidad": "mg" }]
+        },
+        {
+          "nombre": "Flumazenilo",
+          "info": "Bolo IV en 15-30 segundos: 0,01 mg/kg IV (dosis máxima: 0,2 mg). Se puede diluir en SF, DX5% o Ringer lactato. Se puede repetir igual dosis luego de 45 segundos y cada minuto hasta un máximo acumulado de 0,05 mg/kg o 1 mg. Velocidad de infusión: 0,01 mg/kg/min IV, máxima velocidad 0,2 mg/min. Como alternativa a los bolos repetidos, puede iniciarse una infusión continua a 0,005-0,01 mg/kg/hora IV. Vía IN: 0,025-0,04 mg/kg/dosis.",
+          "calc": [
+            { "etiqueta": "Bolo IV", "porKg": [0.01], "unidad": "mg", "tope": 0.2 },
+            { "etiqueta": "Máximo acumulado", "porKg": [0.05], "unidad": "mg", "tope": 1 },
+            { "etiqueta": "Infusión continua", "porKg": [0.005, 0.01], "unidad": "mg", "por": "hora" },
+            { "etiqueta": "Vía intranasal", "porKg": [0.025, 0.04], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Naloxona: reversión de la depresión respiratoria/SNC por opiáceos terapéuticos",
+          "info": "0,01 mg/kg/dosis IV (dosis máxima 0,2 mg) repetidas a intervalos de 2-3 minutos, hasta obtener respiración y conciencia satisfactorias mientras se mantiene una adecuada analgesia.",
+          "calc": [{ "etiqueta": "Dosis IV", "porKg": [0.01], "unidad": "mg", "tope": 0.2 }]
+        },
+        {
+          "nombre": "Naloxona: intoxicación por opioides (reversión total)",
+          "info": "0,1 mg/kg/dosis IV/IM/IN (dosis máxima 2 mg) repetidas a intervalos de 5 minutos hasta un máximo acumulado de 8 mg.",
+          "calc": [{ "etiqueta": "Dosis IV / IM / IN", "porKg": [0.1], "unidad": "mg", "tope": 2 }]
+        },
+        {
+          "nombre": "Aminofilina en infusión para asma aguda",
+          "info": "Infusión continua: 0,65 mg/kg/hora (pacientes hasta 10 kg) y 0,9 mg/kg/hora (pacientes > 10 kg). Se debe ajustar la dosis de mantenimiento para mantener rangos de 10 y 15 µg/ml. Solicitar dosaje 30 minutos después de completada la dosis de carga, y diariamente (6-12 horas luego de ajuste de dosis). Mantener monitoreo ECG durante la administración. Preparación: diluir con SF (preferentemente) o Dx 5% a una concentración de 1 mg/ml (máxima concentración: 25 mg/ml).",
+          "calc": [
+            { "etiqueta": "Infusión continua (hasta 10 kg)", "porKg": [0.65], "unidad": "mg", "por": "hora", "pesoHasta": 10 },
+            { "etiqueta": "Infusión continua (más de 10 kg)", "porKg": [0.9], "unidad": "mg", "por": "hora", "pesoDesde": 11 }
+          ]
+        },
+        {
+          "nombre": "Dantroleno para hipertermia maligna",
+          "info": "Presentación: frasco ampolla liofilizado 20 mg. Infusión IV rápida 2 mg/kg, repetir cada 5 minutos hasta que se resuelvan los síntomas o hasta dosis máxima acumulativa de 10 mg/kg. Preparación: reconstituir 20 mg con 60 mL de agua destilada estéril (exclusivamente, NO en otra solución). Proteger la solución reconstituida de la luz. Un paciente de 70 kg puede requerir hasta 36 ampollas.",
+          "calc": [
+            { "etiqueta": "Infusión IV rápida", "porKg": [2], "unidad": "mg" },
+            { "etiqueta": "Dosis máxima acumulativa", "porKg": [10], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Infusión continua para pacientes ventilados: fentanilo",
+          "info": "Presentación: ampollas de 5 mL - 50 mcg/mL. Diluir en SF o Dx5%. Dosis: 1 mcg/kg/hora, aumentar hasta 4 mcg/kg/hora. Preparación: < 10 kg: tomar 200 mcg de fentanilo, llevar a 50 mL con SF. Administrar 0,25-1 mL/kg/hora [1-4 mcg/kg/hora]. > 10 kg: tomar 500 mcg de fentanilo, llevar a 100 mL con SF. Administrar 0,2-0,8 mL/kg/hora [1-4 mcg/kg/hora].",
+          "calc": [{ "etiqueta": "Infusión continua", "porKg": [1, 4], "unidad": "mcg", "por": "hora" }]
+        },
+        {
+          "nombre": "Infusión continua para pacientes ventilados: ketamina",
+          "info": "Presentación: frasco ampolla de 10 ml - 50 mg/mL. Dosis: 1-2 mg/kg/hora [16,6-33 mcg/kg/minuto]. Preparación: tomar 25 mg/kg, llevar a 50 mL con SF. Administrar 2-4 ml/hora (1-2 mg/kg/hora).",
+          "calc": [
+            { "etiqueta": "Infusión continua", "porKg": [1, 2], "unidad": "mg", "por": "hora" },
+            { "etiqueta": "Preparación: tomar y llevar a 50 mL con SF", "porKg": [25], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Infusión continua para pacientes ventilados: propofol",
+          "info": "Presentación: frasco ampolla/ampollas de 20 ml - 10 mg/ml. Se puede administrar sin diluir o diluido en Dx 5% a concentración mayor de 2 mg/ml. Estabilidad de la infusión: 6 horas. Dosis: 1 mg/kg/hora. Si se utiliza concentración 10 mg/mL, administrar 0,1 mL/kg/hora. Ajustar infusión hasta sedación adecuada. Dosis máxima: 4 mg/kg/hora (0,4 mL/kg/hora). No administrar más de 24 horas. Estrecha vigilancia clínica. Precaución en pacientes con inestabilidad cardiocirculatoria, alteraciones renales o hepáticas y desórdenes del metabolismo lipídico.",
+          "calc": [
+            { "etiqueta": "Infusión continua", "porKg": [1], "unidad": "mg", "por": "hora" },
+            { "etiqueta": "Dosis máxima", "porKg": [4], "unidad": "mg", "por": "hora" }
+          ]
+        }
+      ]
+    },
+    {
+      "clave": "sedacion",
+      "nombre": "Sedación / premedicación",
+      "items": [
+        {
+          "nombre": "Hidrato de cloral",
+          "dosis": "Neonatos: 25 mg/kg (dosis única). Niños > 1 mes: 50-75 mg/kg.",
+          "maximo": "≤ 1 año: 1 g. > 1 año: 2 g.",
+          "info": "Se puede dar vía oral, nasogástrica o rectal. Efecto a 30-60 minutos de su administración. En pesos < 8 kg, dosis total máxima 120 mg/kg.",
+          "calc": [
+            { "etiqueta": "Neonatos (dosis única)", "porKg": [25], "unidad": "mg" },
+            { "etiqueta": "Niños mayores de 1 mes", "porKg": [50, 75], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Fentanilo (intranasal)",
+          "dosis": "2-3 mcg/kg/dosis.",
+          "maximo": "100 mcg.",
+          "info": "Utilizar atomizador. Inicio de acción en 3 minutos, efecto máximo a los 30 minutos. Volumen máximo 1 mL en cada fosa nasal.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [2, 3], "unidad": "mcg", "tope": 100 }]
+        },
+        {
+          "nombre": "Clonidina (IV)",
+          "dosis": "No recomendado en menores de 12 meses. Dosis inicial: 0,25 mcg/kg/hora.",
+          "maximo": "300 mcg.",
+          "info": "Aumentar de a 0,1 mcg/kg/hora hasta lograr una adecuada sedación; en la mayoría de los niños se logra el efecto con 1-3 mcg/kg/hora.",
+          "calc": [
+            { "etiqueta": "Dosis inicial", "porKg": [0.25], "unidad": "mcg", "por": "hora" },
+            { "etiqueta": "Rango habitual de efecto", "porKg": [1, 3], "unidad": "mcg", "por": "hora" }
+          ]
+        },
+        {
+          "nombre": "Clonidina (oral)",
+          "dosis": "No recomendado en menores de 12 meses. > 12 meses: 1-3 mcg/kg cada 8 horas; máximo 5 mcg/kg cada 8 horas.",
+          "maximo": "300 mcg.",
+          "info": "Efecto máximo en 45 minutos. Usar solución de administración IV 150 mcg/mL por vía oral. Mezclar con líquido de sabor agradable. Ajustar la dosis con filtrado glomerular < 10 ml/min.",
+          "calc": [{ "etiqueta": "Dosis cada 8 horas", "porKg": [1, 3], "unidad": "mcg", "tope": 300 }]
+        },
+        {
+          "nombre": "Midazolam (IV)",
+          "dosis": "0,02-0,2 mg/kg.",
+          "maximo": "≤ 5 años: 5 mg. > 5 años: 10 mg.",
+          "info": "Efecto máximo en 5-7 minutos, duración de acción 20-30 minutos.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [0.02, 0.2], "unidad": "mg", "tope": 10 }]
+        },
+        {
+          "nombre": "Midazolam (oral)",
+          "dosis": "No recomendado en menores de 6 meses. > 6 meses: 0,5 mg/kg/dosis.",
+          "maximo": "15 mg.",
+          "info": "Efecto máximo a los 60 minutos. Usar solución IV (5 mg/ml) por vía oral. Diluir en sucrosa o mezclar con líquido de sabor agradable.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [0.5], "unidad": "mg", "tope": 15 }]
+        },
+        {
+          "nombre": "Midazolam (intranasal)",
+          "dosis": "No recomendado en menores de 6 meses. > 6 meses: 0,3-0,5 mg/kg/dosis.",
+          "maximo": "10 mg.",
+          "info": "Utilizar atomizador. Efecto máximo a los 10 minutos, duración de efecto 30-60 minutos. Usar solución IV (5 mg/ml) por vía intranasal. Pica y deja sabor amargo.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [0.3, 0.5], "unidad": "mg", "tope": 10 }]
+        },
+        {
+          "nombre": "Midazolam (bucal, en mucosa yugal)",
+          "dosis": "No recomendado en menores de 6 meses. > 6 meses: 0,5 mg/kg/dosis.",
+          "maximo": "10 mg.",
+          "info": "Efecto máximo en 15 minutos, duración de efecto 30-60 minutos. Usar solución IV (5 mg/ml).",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [0.5], "unidad": "mg", "tope": 10 }]
+        },
+        {
+          "nombre": "Ketamina (IV)",
+          "dosis": "No recomendado en menores de 3 meses. 1-1,5 mg/kg/dosis.",
+          "maximo": "4 mg/kg o 50 mg.",
+          "info": "El efecto es máximo en 1-2 minutos y dura 10-15 minutos. Aunque poco frecuente, hay riesgo de vómito, laringoespasmo y paro respiratorio por obstrucción de la vía aérea.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [1, 1.5], "unidad": "mg" }]
+        },
+        {
+          "nombre": "Ketamina (IM)",
+          "dosis": "No recomendado en menores de 3 meses. 3-5 mg/kg/dosis.",
+          "maximo": "7 mg/kg o 100 mg.",
+          "info": "Efecto comienza en 5 min aproximadamente y dura 15-30 minutos. Aunque poco frecuente, hay riesgo de vómito, laringoespasmo y paro respiratorio por obstrucción de la vía aérea.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [3, 5], "unidad": "mg" }]
+        },
+        {
+          "nombre": "Ketamina (oral)",
+          "dosis": "No recomendado en menores de 3 meses. > 12 meses: 5-10 mg/kg.",
+          "maximo": "10 mg/kg basado en el peso ideal.",
+          "info": "Efecto máximo en 15-30 minutos. Usar solución IV (50 mg/mL o 100 mg/mL) por vía oral. Mezclar con líquido de sabor agradable.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [5, 10], "unidad": "mg" }]
+        },
+        {
+          "nombre": "Ketamina (intranasal)",
+          "dosis": "No recomendado en menores de 3 meses. > 12 meses: 2 mg/kg.",
+          "maximo": "6 mg/kg.",
+          "info": "Utilizar atomizador. Inicio de acción a los 3 minutos, duración de efecto 15 minutos, recuperación en 60-90 minutos. Volumen máximo 1 mL en cada fosa nasal.",
+          "calc": [{ "etiqueta": "Dosis", "porKg": [2], "unidad": "mg" }]
+        }
+      ]
+    },
+    {
+      "clave": "hemorragia-digestiva",
+      "nombre": "Hemorragia gastrointestinal",
+      "items": [
+        {
+          "nombre": "Ranitidina",
+          "dosis": "1 mg/kg cada 6-8 horas, dosis máxima 50 mg. > 12 años: 50 mg cada 8 horas.",
+          "info": "Diluir en Dx 5%/SF, usar concentración de 0,5-2,5 mg/ml; administrar en 10-15 minutos.",
+          "calc": [{ "etiqueta": "Dosis IV", "porKg": [1], "unidad": "mg", "tope": 50 }]
+        },
+        {
+          "nombre": "Omeprazol",
+          "dosis": "Niños de 1 mes a 12 años: 2 mg/kg/dosis IV cada 24 horas. ≥ 12 años: 40 mg IV cada 24 horas.",
+          "info": "Reconstituir el polvo liofilizado con 10 ml de SF/Dx5%. Tomar la dosis indicada y diluir con SF/Dx5%, usar concentración de 0,4 mg/ml; administrar en 20-30 minutos.",
+          "calc": [{ "etiqueta": "Dosis IV cada 24 horas", "porKg": [2], "unidad": "mg", "tope": 40 }]
+        },
+        {
+          "nombre": "Octreótido",
+          "dosis": "Bolo IV 1 mcg/kg, dosis máxima 50 mcg, seguido de infusión continua. Infusión continua 1 mcg/kg/hora, dosis máxima 50 mcg/hora.",
+          "info": "Administrar sin diluir, en 3 min. Para infusión: tomar 100 mcg, llevar a 50 ml con SF. Iniciar a 0,5 ml/kg/hora, se puede aumentar a 2 ml/kg/hora, velocidad máxima 25 mL/hora. Presentación: ampollas (1 ml): 0,05-0,1 mg/ml; frasco ampolla (5 ml): 0,2 mg/ml.",
+          "calc": [
+            { "etiqueta": "Bolo IV", "porKg": [1], "unidad": "mcg", "tope": 50 },
+            { "etiqueta": "Infusión continua", "porKg": [1], "unidad": "mcg", "por": "hora", "tope": 50 }
+          ]
+        },
+        {
+          "nombre": "Vasopresina (solo en infusión)",
+          "dosis": "< 8 kg: 6 U/kg en 50 mL. Iniciar a 5 mL/hora en 30 minutos; ajustar de acuerdo a la respuesta hasta 16 mL/hora. 8-15 kg: 6 U/kg en 100 mL. Iniciar a 10 mL/hora en 30 minutos; ajustar de acuerdo a la respuesta hasta 32 mL/hora. 15 kg a 30 kg: 3 U/kg en 100 mL. Iniciar a 20 mL/hora en 30 minutos; ajustar de acuerdo a la respuesta hasta 64 mL/hora.",
+          "calc": [
+            { "etiqueta": "Tomar y llevar a 50 mL (menos de 8 kg)", "porKg": [6], "unidad": "U", "pesoHasta": 7 },
+            { "etiqueta": "Tomar y llevar a 100 mL (8 a 15 kg)", "porKg": [6], "unidad": "U", "pesoDesde": 8, "pesoHasta": 15 },
+            { "etiqueta": "Tomar y llevar a 100 mL (15 a 30 kg)", "porKg": [3], "unidad": "U", "pesoDesde": 16, "pesoHasta": 30 }
+          ]
+        }
+      ]
+    },
+    {
+      "clave": "analgesia",
+      "nombre": "Analgesia",
+      "items": [
+        {
+          "nombre": "Ketorolac (vía oral)",
+          "dosis": "2-16 años: 1 mg/kg cada 6 horas, dosis máxima 10 mg (máximo 40 mg/día). > 16 años: 10 mg VO cada 6 horas (máximo 40 mg/día).",
+          "info": "La administración oral debe ser únicamente como continuación de la terapia parenteral.",
+          "calc": [{ "etiqueta": "Dosis cada 6 horas", "porKg": [1], "unidad": "mg", "tope": 10 }]
+        },
+        {
+          "nombre": "Ketorolac (parenteral)",
+          "dosis": "1 mes a 16 años y > 16 años con peso < 50 kg: 0,5 mg/kg/dosis IV cada 6 horas; dosis máxima 15 mg (máximo 60 mg/día) o 1 mg/kg/dosis IM cada 6 horas; dosis máxima 30 mg (máximo 90 mg/día). > 16 años y > 50 kg: 30 mg IV/IM cada 6 horas (máximo 120 mg/día).",
+          "info": "Máxima duración del tratamiento: 5 días en total.",
+          "calc": [
+            { "etiqueta": "Dosis IV cada 6 horas", "porKg": [0.5], "unidad": "mg", "tope": 15 },
+            { "etiqueta": "Dosis IM cada 6 horas", "porKg": [1], "unidad": "mg", "tope": 30 }
+          ]
+        },
+        {
+          "nombre": "Diclofenac",
+          "dosis": "Vía oral: 1-12 años: 1 mg/kg VO cada 8-12 horas; dosis máxima 50 mg. > 12 años: 50 mg VO cada 8-12 horas (máximo 150 mg/día). Parenteral: IV: no disponible. IM: 2-16 años: 1 mg/kg IM cada 8-12 horas. > 16 años: 50-75 mg IM cada 12 horas (máximo 150 mg/día).",
+          "info": "Máxima duración del tratamiento: 48 horas.",
+          "calc": [
+            { "etiqueta": "Dosis VO cada 8-12 horas", "porKg": [1], "unidad": "mg", "tope": 50 },
+            { "etiqueta": "Dosis IM cada 8-12 horas", "porKg": [1], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Codeína",
+          "dosis": "Vía oral: 0,5-1 mg/kg/dosis cada 4-6 horas; dosis máxima 60 mg. > 12 años: 30-60 mg cada 4-6 horas (máximo 240 mg/día). IV: no disponible.",
+          "calc": [{ "etiqueta": "Dosis cada 4-6 horas", "porKg": [0.5, 1], "unidad": "mg", "tope": 60 }]
+        },
+        {
+          "nombre": "Tramadol",
+          "dosis": "Vía oral: 3-12 años: 1-2 mg/kg VO cada 6-8 horas, dosis máxima 100 mg. > 12 años: 50-100 mg VO cada 6-8 horas (máximo 400 mg/día). Parenteral: 3-12 años: (dosis única) 1-2 mg/kg IM/IV cada 6-8 horas, dosis máxima 100 mg. > 12 años: 50-100 mg IM/IV cada 6-8 horas (máximo 400 mg/día). Infusión IV continua: 3-6 mg/kg/día (máximo 400 mg/día).",
+          "calc": [
+            { "etiqueta": "Dosis cada 6-8 horas", "porKg": [1, 2], "unidad": "mg", "tope": 100 },
+            { "etiqueta": "Infusión IV continua por día", "porKg": [3, 6], "unidad": "mg", "tope": 400 }
+          ]
+        },
+        {
+          "nombre": "Morfina clorhidrato",
+          "dosis": "Vía oral (formas de liberación no retardada): 0,1-0,5 mg/kg/dosis cada 4 horas. > 12 años: 10-30 mg cada 4 horas. Parenteral: < 50 kg: 0,05-0,2 mg/kg/dosis SC/IV cada 4 horas. > 50 kg: 5-10 mg SC/IV cada 4 horas.",
+          "info": "Individualizar la dosis y aumentar en 50% cada vez hasta alcanzar dosis efectiva.",
+          "calc": [
+            { "etiqueta": "Dosis VO cada 4 horas", "porKg": [0.1, 0.5], "unidad": "mg" },
+            { "etiqueta": "Dosis SC / IV cada 4 horas (menos de 50 kg)", "porKg": [0.05, 0.2], "unidad": "mg", "pesoHasta": 45 },
+            { "etiqueta": "Dosis SC / IV cada 4 horas (más de 50 kg)", "fija": [5, 10], "unidad": "mg", "pesoDesde": 55 }
+          ]
+        }
+      ]
+    },
+    {
+      "clave": "antidotos-generales",
+      "nombre": "Antídotos",
+      "items": [
+        {
+          "nombre": "Desferoxamina",
+          "dosis": "Iniciar a 15 mg/kg/hora IV (3 mL/kg/hora).",
+          "info": "Reconstituir 500 mg con 5 mL de AD; llevar a 100 mL con SF/Dx5%. Si aparece hipotensión, se podría reducir la dosis de infusión. El tratamiento se suspende cuando desaparecen el shock, la alteración del estado mental, la hepatotoxicidad y la acidosis metabólica, el color de la orina vuelve a la normalidad, y el hierro sérico es < 60 micromoles/L (< 350 mcg/dL).",
+          "calc": [{ "etiqueta": "Dosis inicial", "porKg": [15], "unidad": "mg", "por": "hora" }]
+        },
+        {
+          "nombre": "Azul de metileno (cloruro de metiltionina)",
+          "dosis": "1-2 mg/kg IV (0,1-0,2 mL/kg de solución 1%). Administrar en 5-10 minutos.",
+          "maximo": "Dosis máxima 7 mg/kg.",
+          "info": "Administrar seguidamente 10 ml de SF para minimizar la irritación venosa. Puede requerir segunda dosis (1 mg/kg) a los 30-60 minutos.",
+          "calc": [
+            { "etiqueta": "Dosis IV", "porKg": [1, 2], "unidad": "mg" },
+            { "etiqueta": "Volumen de solución 1%", "porKg": [0.1, 0.2], "unidad": "mL" },
+            { "etiqueta": "Segunda dosis", "porKg": [1], "unidad": "mg" },
+            { "etiqueta": "Dosis máxima", "porKg": [7], "unidad": "mg" }
+          ]
+        },
+        {
+          "nombre": "Politetilenglicol para irrigación intestinal",
+          "dosis": "25 mL/kg/hora VO o por sonda nasogástrica (máximo 2 L/hora) por 4-8 horas.",
+          "info": "Disolver sobre de 17,5 g en 250 mL de agua. Continuar administración hasta que se obtenga salida de líquido claro por vía rectal (4-6 horas).",
+          "calc": [{ "etiqueta": "Velocidad", "porKg": [25], "unidad": "mL", "por": "hora", "tope": 2000 }]
+        }
+      ]
+    },
+    {
+      "clave": "oxigeno",
+      "nombre": "Suministro de oxígeno",
+      "items": [
+        {
+          "nombre": "Sistema de bajo flujo (flujo de O2 ≤ 10 L/min)",
+          "info": "El flujo de oxígeno no excede el flujo inspiratorio del paciente; permite la entrada de aire ambiente. Suministra FiO2 entre 0,23 y 0,80 (23-80%)."
+        },
+        {
+          "nombre": "Sistema de alto flujo (flujo de O2 > 10 L/min)",
+          "info": "El flujo de oxígeno excede el flujo inspiratorio del paciente, previniendo la entrada de aire ambiente si el sistema se ajusta adecuadamente. Suministra FiO2 cercana a 100%."
+        },
+        { "nombre": "Cánula nasal (bajo flujo)", "info": "Flujo de oxígeno 0,25-4 L/min. FiO2 aproximada 22-60% (según el flujo y el tamaño del paciente)." },
+        { "nombre": "Mascarilla de oxígeno (bajo flujo)", "info": "Flujo de oxígeno 6-10 L/min. FiO2 aproximada 35-60%." },
+        { "nombre": "Campana de oxígeno (alto flujo)", "info": "Flujo de oxígeno 10-15 L/min. FiO2 aproximada 80-90%." },
+        { "nombre": "Tienda de oxígeno (alto flujo)", "info": "Flujo de oxígeno > 10 L/min. FiO2 aproximada > 50%." },
+        { "nombre": "Mascarilla de re-inspiración parcial con reservorio (alto flujo)", "info": "Flujo de oxígeno 10-12 L/min. FiO2 aproximada 50-60%." },
+        { "nombre": "Mascarilla de no re-inhalación con reservorio (alto flujo)", "info": "Flujo de oxígeno 10-15 L/min. FiO2 aproximada 95%." },
+        { "nombre": "Mascarilla con sistema Venturi (alto flujo)", "info": "Flujo de oxígeno variable. FiO2 aproximada 25-60%." },
+        { "nombre": "Cánula nasal de alto flujo (alto flujo)", "info": "Flujo de oxígeno variable. FiO2 aproximada 21-100%." }
+      ]
+    }
+  ]
+}

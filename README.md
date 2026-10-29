@@ -26,7 +26,7 @@ npm run dev                # queda escuchando en http://localhost:3000
 
 Después, el frontend: `npx expo start` en la otra carpeta. Primero el backend, después Expo.
 
-Scripts: `dev` (desarrollo con recarga), `build` (compila a `dist/`), `start` (corre `dist/`), `prisma:generate`, `prisma:migrate`, `db:init` (`prisma db push` + datos iniciales).
+Scripts: `dev` (desarrollo con recarga), `build` (compila a `dist/`), `start` (corre `dist/`), `prisma:generate`, `prisma:migrate`, `db:init` (`prisma db push --accept-data-loss` + datos iniciales), `verificar:libro`.
 
 `.env`:
 
@@ -44,10 +44,10 @@ El `.env` y la base (`prisma/dev.db`) no se suben a git. Para empezar de cero: b
 |---|---|
 | Cuentas de prueba | `admin@kidose.com` / `Admin123` · `medico@kidose.com` y `medico2@kidose.com` / `Medico123` · `paciente@kidose.com` / `Paciente123` |
 | Registro de matrículas | 123456 Laura Fernández (DNI 30123456), 234567 Martín Gómez (28456789), 345678 Sofía Acosta (33987654). La 345678 queda libre para probar el registro de un médico. |
-| Medicamentos | 5 categorías (reanimación, intubación, convulsiones, asma, anafilaxia) tomadas de las tablas por peso del libro de Medicamentos en Emergencias Pediátricas. Ver `src/datos-semilla.ts`. |
+| Libro | Las 38 tablas por peso del libro de Medicamentos en Emergencias Pediátricas (2 a 80 kg), con lo que el libro imprime en cada fila. Ver `data/libro.json` y `src/datos-semilla.ts`. |
 | Historial | La paciente de prueba tiene dos atenciones de ejemplo. |
 
-Los medicamentos se vuelven a cargar desde `src/datos-semilla.ts` cada vez que arranca la API, así que ese archivo es la fuente de verdad del catálogo. Cuando el libro da un rango (ketamina y fentanilo, 1–2 por kg) se guarda el mínimo y la nota lo aclara. `dosisMaxima` es la dosis de adulto que el libro muestra en los pesos más altos; si el libro no trae tope queda en `null`.
+Las tablas se cargan de `data/libro.json` (extraído del PDF del libro) cada vez que arranca la API; `src/datos-semilla.ts` solo agrega lo que el libro no dice (principio activo y vía en CIMA, qué se resalta en rojo). Los pesos son los de las tablas: cualquier peso (del registro, de una atención o de una consulta) se pasa al de la tabla que no lo supera (11,7 kg se usa como 11 kg), y a los pacientes cargados antes se les normaliza el peso al correr `npm run db:init`. Los errores de imprenta del libro están corregidos en `libro.json` y listados en `correcciones` (cada fila corregida lo avisa en la app). Lo que el libro trae fuera de las tablas (algoritmos, sedación, analgesia, etc.) está en `data/generales.json`, con las dosis por kg y sus topes para que la API las calcule. `npm run verificar:libro` revisa que cada dosis sea la dosis por kg por el peso y que cada volumen coincida con la concentración que indica el libro.
 
 ## Autenticación
 
@@ -62,19 +62,22 @@ Errores: siempre `{ "error": "mensaje" }`. Códigos: 200 lectura/actualización 
 | Método | Ruta | Quién | Qué hace |
 |---|---|---|---|
 | GET | `/api/health` | todos | Confirma que el servidor está encendido → `{ ok: true }` |
-| POST | `/api/auth/login` | todos | Body `{ email, contrasena }` → `{ token, usuario }`. 401 si son incorrectos, 403 si la cuenta está pendiente o rechazada |
+| POST | `/api/auth/login` | todos | Body `{ email, contrasena }` → `{ token, usuario }`. 401 si son incorrectos, 403 si la cuenta está pendiente, rechazada o dada de baja |
 | GET | `/api/auth/yo` | con sesión | Devuelve el usuario del token |
 | POST | `/api/auth/registro` | todos | Crea una cuenta. 201. Médico: `rol, nombre, dni, email, contrasena, matricula, hospital` (la matrícula debe existir y coincidir con nombre y DNI; queda pendiente). Paciente: `rol, nombre, dni, email, contrasena, fechaNacimiento, pesoKg, alergias[], direccion, latitud, longitud` |
 | GET | `/api/matriculas/:matricula` | todos | Consulta el registro de matrículas (404 si no figura) |
 | GET | `/api/usuarios?estado=pendiente` | admin | Lista cuentas de médicos |
-| PATCH | `/api/usuarios/:id` | admin | Body `{ estado: "aprobada" \| "rechazada" }` |
+| PATCH | `/api/usuarios/:id` | admin | Body `{ estado: "aprobada" \| "rechazada" \| "baja" }`. Pasos permitidos: pendiente→aprobada/rechazada, aprobada→baja, baja→aprobada (409 en otro caso). Nunca se borra la cuenta |
 | GET | `/api/pacientes/:id` | médico, o el propio paciente | Datos del paciente con sus alergias |
 | PATCH | `/api/pacientes/:id` | médico, o el propio paciente | Cambia solo lo enviado: `pesoKg` (ambos) y `alergias` (solo el paciente) |
 | POST | `/api/qr` | paciente | Genera el código de su QR (vence a los 5 min) → `{ codigo, venceEn }`. 201 |
 | POST | `/api/qr/leer` | médico | Body `{ codigo }` → el paciente. 404 si no existe, 410 si venció |
-| GET | `/api/categorias` | con sesión | Categorías con sus medicamentos |
+| GET | `/api/libro/alergenos` | pública | Lista de sustancias del libro: las únicas alergias que se pueden cargar |
+| GET | `/api/libro/pesos` | pública | Pesos de las tablas del libro, edad y peso aproximado, y avisos del libro |
+| GET | `/api/libro/tabla?peso=` | médico | La tabla del libro para ese peso (se pasa al de la tabla que corresponde), agrupada por sección |
+| GET | `/api/libro/generales?peso=` | médico | Lo que el libro trae fuera de las tablas por peso, con las dosis calculadas para ese peso |
 | GET | `/api/atenciones?pacienteId=` | médico (obligatorio) o paciente (solo las suyas) | Historial, de la más nueva a la más vieja |
-| POST | `/api/atenciones` | médico | Body `{ pacienteId, pesoKg, dosis: [{ medicamentoId, cantidad, hora }] }`. Valida que ninguna dosis supere peso × dosis por kg ni la dosis máxima; guarda la atención y actualiza el peso del paciente en una sola transacción. 201 |
+| POST | `/api/atenciones` | médico | Body `{ pacienteId, pesoKg, dosis: [{ medicamentoId, cantidad, hora }] }`. El peso se pasa al de la tabla del libro; valida que cada dosis esté dentro de lo que el libro indica para ese medicamento y ese peso; guarda la atención y actualiza el peso del paciente en una sola transacción. 201 |
 
 ## Probar la API sin la app (PowerShell)
 
@@ -87,7 +90,7 @@ $sesion = Invoke-RestMethod http://localhost:3000/api/auth/login -Method Post -C
 $h = @{ Authorization = "Bearer $($sesion.token)" }
 
 # Leer medicamentos
-Invoke-RestMethod http://localhost:3000/api/categorias -Headers $h
+Invoke-RestMethod "http://localhost:3000/api/libro/tabla?peso=14" -Headers $h
 
 # Un pedido inválido devuelve 400 (acá falta el email)
 $mal = @{ contrasena = "x" } | ConvertTo-Json
@@ -102,7 +105,7 @@ Invoke-RestMethod http://localhost:3000/api/auth/login -Method Post -ContentType
 | `Alergia` | Alergias del paciente (1 paciente → N alergias) |
 | `CodigoQr` | Código aleatorio con vencimiento que muestra el QR del paciente |
 | `Matricula` | Registro de matrículas contra el que se verifica a los médicos |
-| `Categoria`, `Medicamento` | Catálogo de la calculadora |
+| `Categoria`, `Medicamento`, `FilaLibro` | Secciones del libro, sus indicaciones y lo que el libro imprime para cada peso |
 | `Atencion`, `Dosis` | Historial: una atención tiene muchas dosis suministradas |
 
 ## Qué hace cada archivo
@@ -111,7 +114,9 @@ Invoke-RestMethod http://localhost:3000/api/auth/login -Method Post -ContentType
 |---|---|
 | `src/index.ts` | Configuración de Express, montaje de rutas, errores 404/500 y arranque |
 | `src/initDb.ts` | Datos iniciales (idempotente) |
-| `src/datos-semilla.ts` | Medicamentos del libro y registro de matrículas |
+| `src/datos-semilla.ts` | Identidad de cada indicación del libro y registro de matrículas |
+| `data/libro.json`, `data/generales.json` | Contenido del libro (tablas por peso y resto) |
+| `scripts/verificar-libro.ts` | Chequeo de las cuentas del libro |
 | `src/prisma.ts` | Única instancia de `PrismaClient` |
 | `src/auth.ts` | Token JWT, middleware de sesión y de roles |
 | `src/validaciones.ts` | Validaciones hechas a mano (sin regex ni librerías) |

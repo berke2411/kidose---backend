@@ -15,11 +15,11 @@ import {
   validarNombre,
   validarPeso,
 } from "../validaciones";
+import { esAlergenoDelLibro, normalizarPeso } from "../libro";
 
 export const rutasAuth = Router();
 
 // POST /api/auth/login
-// Compara la contrasena con el hash guardado y devuelve el token y el usuario.
 rutasAuth.post("/login", async (req, res) => {
   const cuerpo = req.body ?? {};
   const email = texto(cuerpo.email).toLowerCase();
@@ -46,12 +46,15 @@ rutasAuth.post("/login", async (req, res) => {
     res.status(403).json({ error: "Tu solicitud de cuenta fue rechazada" });
     return;
   }
+  if (usuario.estado === "baja") {
+    res.status(403).json({ error: "Tu cuenta fue dada de baja. Comunicate con un administrador" });
+    return;
+  }
 
   res.json({ token: crearToken(usuario), usuario: usuarioPublico(usuario) });
 });
 
 // GET /api/auth/yo
-// Devuelve el usuario del token: la app lo usa para recuperar la sesion al abrirse.
 rutasAuth.get("/yo", autenticar, async (_req, res) => {
   const { id } = res.locals.usuario;
   const usuario = await prisma.usuario.findUnique({ where: { id }, include: { alergias: true } });
@@ -59,8 +62,6 @@ rutasAuth.get("/yo", autenticar, async (_req, res) => {
 });
 
 // POST /api/auth/registro
-// Crea una cuenta nueva. El paciente queda aprobado; el medico queda pendiente
-// y solo se crea si su matricula existe en el registro y coincide con su nombre y DNI.
 rutasAuth.post("/registro", async (req, res) => {
   const cuerpo = req.body ?? {};
   const rol = texto(cuerpo.rol);
@@ -141,7 +142,6 @@ rutasAuth.post("/registro", async (req, res) => {
     return;
   }
 
-  // Paciente
   const fechaNacimiento = parseFecha(cuerpo.fechaNacimiento);
   const hoy = new Date();
   const limiteAntiguo = new Date(hoy.getFullYear() - 120, hoy.getMonth(), hoy.getDate());
@@ -157,12 +157,11 @@ rutasAuth.post("/registro", async (req, res) => {
   }
 
   const alergias = limpiarAlergias(cuerpo.alergias ?? []);
-  if (alergias === null) {
-    res.status(400).json({ error: "Las alergias no son válidas" });
+  if (alergias === null || !alergias.every(esAlergenoDelLibro)) {
+    res.status(400).json({ error: "Las alergias tienen que ser de la lista del libro" });
     return;
   }
 
-  // La direccion la verifica la app con Georef; aca se exige que haya llegado completa.
   const direccion = texto(cuerpo.direccion);
   if (direccion === "" || typeof cuerpo.latitud !== "number" || typeof cuerpo.longitud !== "number") {
     res.status(400).json({ error: "Falta verificar la dirección" });
@@ -181,7 +180,7 @@ rutasAuth.post("/registro", async (req, res) => {
       direccion,
       latitud: cuerpo.latitud,
       longitud: cuerpo.longitud,
-      pesoKg: cuerpo.pesoKg,
+      pesoKg: normalizarPeso(cuerpo.pesoKg),
       alergias: { create: alergias.map((alergia) => ({ nombre: alergia })) },
     },
     include: { alergias: true },
