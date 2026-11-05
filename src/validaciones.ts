@@ -1,7 +1,6 @@
 
 export function parseId(value: unknown): number | null {
   const id = Number(value);
-  // 2147483647 es el mayor entero que entra en la base
   return Number.isInteger(id) && id > 0 && id <= 2147483647 ? id : null;
 }
 
@@ -61,7 +60,6 @@ export function validarMatricula(matricula: string): string | null {
     : "La matrícula debe tener 5 o 6 números";
 }
 
-// Compara dos nombres sin importar mayusculas, tildes ni espacios de mas.
 export function nombresIguales(a: string, b: string): boolean {
   return normalizarNombre(a) === normalizarNombre(b);
 }
@@ -79,7 +77,6 @@ function normalizarNombre(nombre: string): string {
     .join(" ");
 }
 
-// Peso permitido: el mismo rango que usa la app (el libro llega hasta 75 kg).
 export const PESO_MINIMO = 2;
 export const PESO_MAXIMO = 80;
 

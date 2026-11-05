@@ -7,22 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Una sola tabla para los tres tipos de cuenta (rol: medico, paciente o admin).
-// Los campos que no corresponden al rol quedan en null.
 model Usuario {
   id              Int        @id @default(autoincrement())
   rol             String
-  // pendiente (medico esperando aprobacion), aprobada, rechazada o baja (el admin lo dio de baja; no se borra)
   estado          String     @default("aprobada")
   nombre          String
   email           String     @unique
   contrasena      String
   dni             String     @unique
-  // Solo medico
   matricula       String?    @unique
   especialidad    String?
   hospital        String?
-  // Solo paciente
   fechaNacimiento DateTime?
   direccion       String?
   latitud         Float?
@@ -44,7 +39,6 @@ model Alergia {
   createdAt  DateTime @default(now())
 }
 
-// Codigo que muestra el QR del paciente: es aleatorio y vence en pocos minutos.
 model CodigoQr {
   id         Int      @id @default(autoincrement())
   codigo     String   @unique
@@ -54,7 +48,6 @@ model CodigoQr {
   createdAt  DateTime @default(now())
 }
 
-// Registro oficial de matriculas contra el que se verifica a los medicos.
 model Matricula {
   id           Int      @id @default(autoincrement())
   matricula    String   @unique
@@ -64,7 +57,6 @@ model Matricula {
   createdAt    DateTime @default(now())
 }
 
-// Secciones del libro (anafilaxia, resucitacion, intubacion, etc.).
 model Categoria {
   id           Int           @id @default(autoincrement())
   clave        String        @unique
@@ -75,8 +67,6 @@ model Categoria {
   createdAt    DateTime      @default(now())
 }
 
-// Cada indicacion de las tablas por peso del libro (un medicamento, un dispositivo, una correccion de electrolitos).
-// Las filas viejas del catalogo anterior quedan con activo = false para no perder el historial de atenciones.
 model Medicamento {
   id              Int          @id @default(autoincrement())
   categoriaId     Int
@@ -93,10 +83,6 @@ model Medicamento {
   createdAt       DateTime     @default(now())
 }
 
-// Lo que el libro imprime para un medicamento en la tabla de un peso (una fila por medicamento y peso).
-// Los textos se guardan tal cual figuran. cantidadMin y cantidadMax son la cantidad que se registra al suministrar
-// (iguales si es un solo valor): la dosis, o la cantidad principal en lo que no es una dosis unica
-// (infusiones, correcciones de electrolitos, descarga electrica, tubo endotraqueal).
 model FilaLibro {
   id            Int         @id @default(autoincrement())
   medicamentoId Int
@@ -130,7 +116,6 @@ model Atencion {
   createdAt  DateTime @default(now())
 }
 
-// Una dosis suministrada. Guarda el nombre, la via y la unidad tal como se dieron.
 model Dosis {
   id            Int         @id @default(autoincrement())
   atencionId    Int

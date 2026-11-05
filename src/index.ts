@@ -35,7 +35,6 @@ app.use((_req, res) => {
   res.status(404).json({ error: "La ruta no existe" });
 });
 
-// Errores: JSON mal formado es 400; cualquier otro responde 500.
 app.use((error: { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
   if (error.type === "entity.parse.failed") {
     res.status(400).json({ error: "El JSON enviado no es válido" });

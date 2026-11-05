@@ -14,7 +14,6 @@ function puedeAcceder(usuario: Usuario, pacienteId: number): boolean {
   return usuario.rol === "medico" || usuario.id === pacienteId;
 }
 
-// GET /api/pacientes/:id
 rutasPacientes.get("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {
@@ -37,7 +36,6 @@ rutasPacientes.get("/:id", async (req, res) => {
   res.json(usuarioPublico(paciente));
 });
 
-// PATCH /api/pacientes/:id
 rutasPacientes.patch("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {
@@ -86,14 +84,12 @@ rutasPacientes.patch("/:id", async (req, res) => {
     return;
   }
 
-  // Las alergias nuevas tienen que ser de la lista del libro
   const yaCargadas = existe.alergias.map((alergia) => alergia.nombre.toLowerCase());
   if (nuevasAlergias !== null && !nuevasAlergias.every((nombre) => esAlergenoDelLibro(nombre) || yaCargadas.includes(nombre.toLowerCase()))) {
     res.status(400).json({ error: "Las alergias tienen que ser de la lista del libro" });
     return;
   }
 
-  // Las alergias se reemplazan completas dentro de una transaccion.
   const alergiasFinales = nuevasAlergias;
   const paciente = await prisma.$transaction(async (tx) => {
     if (alergiasFinales !== null) {

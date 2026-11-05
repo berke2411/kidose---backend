@@ -5,7 +5,6 @@ import { validarMatricula } from "../validaciones";
 
 export const rutasMatriculas = Router();
 
-// GET /api/matriculas/:matricula
 rutasMatriculas.get("/:matricula", async (req, res) => {
   const matricula = String(req.params.matricula);
   const error = validarMatricula(matricula);

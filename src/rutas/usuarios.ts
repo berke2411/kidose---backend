@@ -10,7 +10,6 @@ rutasUsuarios.use(autenticar, soloRol("admin"));
 
 const ESTADOS = ["pendiente", "aprobada", "rechazada", "baja"];
 
-// A que estados se puede pasar desde cada uno. Nunca se borra un medico: la baja solo cambia su estado.
 const TRANSICIONES: Record<string, string[]> = {
   pendiente: ["aprobada", "rechazada"],
   aprobada: ["baja"],
@@ -18,7 +17,6 @@ const TRANSICIONES: Record<string, string[]> = {
   rechazada: [],
 };
 
-// GET /api/usuarios?estado=pendiente
 rutasUsuarios.get("/", async (req, res) => {
   const estado = texto(req.query.estado);
   if (estado !== "" && !ESTADOS.includes(estado)) {
@@ -33,7 +31,6 @@ rutasUsuarios.get("/", async (req, res) => {
   res.json(medicos.map((medico) => usuarioPublico(medico)));
 });
 
-// PATCH /api/usuarios/:id
 rutasUsuarios.patch("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {

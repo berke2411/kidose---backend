@@ -1,12 +1,6 @@
 import { IDENTIDADES } from "../src/datos-semilla";
 import { leerJson } from "../src/libro";
 
-// Revisa que data/libro.json sea consistente con las propias cuentas del libro:
-// 1) la dosis que indica cada fila es la dosis por kg por el peso de la tabla,
-// 2) el volumen a administrar es la dosis dividida por la concentracion de la preparacion,
-// 3) toda fila tiene su identidad cargada en datos-semilla.ts.
-// Uso: npm run verificar:libro
-
 type Fila = {
   nombre: string;
   dosisKg?: string;
@@ -26,7 +20,6 @@ function sinRuido(texto: string | undefined): string {
   return (texto ?? "").split("(γ)").join("").split(" ").join("");
 }
 
-// "14-28mg", "1,4mg", "70mcg": rango y unidad (las cantidades en mg se llevan a mg)
 function cantidad(texto: string | undefined): { min: number; max: number; unidad: string } | null {
   const partes = sinRuido(texto).match(/^([\d.,]+)(?:[-–]([\d.,]+))?(mg|mcg|g|mL|ml)$/);
   if (!partes) return null;
@@ -36,7 +29,6 @@ function cantidad(texto: string | undefined): { min: number; max: number; unidad
   return { min, max: partes[2] ? numero(partes[2]) * factor : min, unidad };
 }
 
-// El libro redondea a un decimal, por eso los volumenes toleran hasta 0,07 mL de diferencia
 function cercano(real: number, esperado: number, margen = 0.011): boolean {
   return Math.abs(real - esperado) <= Math.max(0.07 * esperado, margen);
 }
@@ -54,7 +46,6 @@ for (const tabla of libro.tablas) {
         problemas.push(`${donde}: falta la identidad en datos-semilla.ts`);
       }
 
-      // 1) dosis por kg por el peso
       const indicada = cantidad(fila.indicar);
       const porKg = sinRuido(fila.dosisKg).match(/^([\d.,]+)(?:[-–]([\d.,]+))?(mg|mcg|g)\/kg$/);
       if (porKg && indicada) {
@@ -67,7 +58,6 @@ for (const tabla of libro.tablas) {
         }
       }
 
-      // 2) volumen = dosis / concentracion
       const preparar = (fila.preparar ?? "").split("(γ)").join("");
       let concentracion: number | null = null;
       const usar = preparar.match(/[Uu]sar concentraci[oó]n(?: de)? ?([\d.,]+) ?(mg|mcg|g) ?\/ ?mL/);

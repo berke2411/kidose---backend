@@ -19,7 +19,6 @@ import { esAlergenoDelLibro, normalizarPeso } from "../libro";
 
 export const rutasAuth = Router();
 
-// POST /api/auth/login
 rutasAuth.post("/login", async (req, res) => {
   const cuerpo = req.body ?? {};
   const email = texto(cuerpo.email).toLowerCase();
@@ -37,7 +36,6 @@ rutasAuth.post("/login", async (req, res) => {
     return;
   }
 
-  // Los medicos nuevos no pueden ingresar hasta que un admin los apruebe.
   if (usuario.estado === "pendiente") {
     res.status(403).json({ error: "Tu cuenta todavía está pendiente de aprobación" });
     return;
@@ -54,14 +52,12 @@ rutasAuth.post("/login", async (req, res) => {
   res.json({ token: crearToken(usuario), usuario: usuarioPublico(usuario) });
 });
 
-// GET /api/auth/yo
 rutasAuth.get("/yo", autenticar, async (_req, res) => {
   const { id } = res.locals.usuario;
   const usuario = await prisma.usuario.findUnique({ where: { id }, include: { alergias: true } });
   res.json(usuarioPublico(usuario!));
 });
 
-// POST /api/auth/registro
 rutasAuth.post("/registro", async (req, res) => {
   const cuerpo = req.body ?? {};
   const rol = texto(cuerpo.rol);
@@ -129,7 +125,7 @@ rutasAuth.post("/registro", async (req, res) => {
       data: {
         rol,
         estado: "pendiente",
-        nombre: registrado.nombre, // se guarda el nombre oficial del registro
+        nombre: registrado.nombre,
         email,
         contrasena: hash,
         dni,

@@ -8,7 +8,6 @@ export function leerJson<T>(archivo: string): T {
   return JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", archivo), "utf8")) as T;
 }
 
-// Los pesos son los de las tablas del libro (se cargan de la base al arrancar).
 let pesos: number[] = [];
 
 export async function cargarPesos(): Promise<void> {
@@ -20,8 +19,6 @@ export function pesosDelLibro(): number[] {
   return pesos;
 }
 
-// El libro solo tiene tablas para ciertos pesos: siempre se usa el de la tabla que no supera al peso real
-// (11,7 kg se trata como 11 kg). Devuelve null si el peso es menor al de la primera tabla.
 export function normalizarPeso(peso: number): number | null {
   let elegido: number | null = null;
   for (const candidato of pesos) {
@@ -59,8 +56,6 @@ function redondear(valor: number): number {
   return Math.round(valor * 1000) / 1000;
 }
 
-// Dosis por kg (o dosis fija por franja de peso) con su tope, tal como lo indica el libro.
-// Devuelve null si la regla no corresponde a este peso.
 export function calcular(calculo: Calculo, peso: number): ResultadoCalculo | null {
   if (calculo.pesoDesde !== undefined && peso < calculo.pesoDesde) return null;
   if (calculo.pesoHasta !== undefined && peso > calculo.pesoHasta) return null;

@@ -1,8 +1,3 @@
-// Identidad de cada indicación del libro "Medicamentos en Emergencias Pediatricas: Latinoamerica" (fuente unica).
-// Las dosis y los textos salen de data/libro.json (extraido del libro); aca solo se agrega lo que el libro no dice:
-// el principio activo y la via con que figura en CIMA (para las contraindicaciones, fuente externa) y si se resalta en rojo.
-// El orden de cada lista es el orden en que aparece en el libro.
-
 export type IdentidadMedicamento = {
   nombre: string;
   principioActivo?: string;
@@ -95,8 +90,6 @@ export const IDENTIDADES: Record<string, IdentidadMedicamento[]> = {
   ],
 };
 
-// Sustancias que el libro menciona. Son las unicas alergias que se pueden cargar: si una alergia no esta en la lista,
-// no afecta a ninguna dosis del libro. El principio activo se compara con el de cada indicacion.
 export const ALERGENOS: { nombre: string; principioActivo: string }[] = [
   { nombre: "Ácido tranexámico", principioActivo: "tranexámico ácido" },
   { nombre: "Ácido valproico", principioActivo: "valproico ácido" },
@@ -158,7 +151,6 @@ export const ALERGENOS: { nombre: string; principioActivo: string }[] = [
   { nombre: "Vecuronio", principioActivo: "vecuronio" },
 ];
 
-// Registro de matriculas de ejemplo (simula el registro oficial de profesionales).
 export const MATRICULAS_SEMILLA = [
   { matricula: "123456", nombre: "Laura Fernández", dni: "30123456", especialidad: "Emergentología pediátrica" },
   { matricula: "234567", nombre: "Martín Gómez", dni: "28456789", especialidad: "Pediatría" },

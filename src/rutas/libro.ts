@@ -30,20 +30,14 @@ type Generales = {
 
 const generales = leerJson<Generales>("generales.json");
 
-// GET /api/libro/pesos
-// Los pesos de las tablas del libro, la referencia de edad y peso aproximado y los avisos del libro.
-// Es publica: el registro la necesita antes de tener cuenta.
 rutasLibro.get("/pesos", (_req, res) => {
   res.json({ pesos: pesosDelLibro(), edadPeso: generales.edadPeso, avisos: generales.avisos });
 });
 
-// GET /api/libro/alergenos
-// Las unicas alergias que se pueden cargar: las sustancias que menciona el libro.
 rutasLibro.get("/alergenos", (_req, res) => {
   res.json({ alergenos: ALERGENOS });
 });
 
-// Peso del pedido (?peso=11,7): se pasa al de la tabla que corresponde.
 function pesoDelPedido(valor: unknown): { ingresado: number; peso: number } | string {
   const ingresado = Number(String(valor ?? "").split(",").join("."));
   if (!Number.isFinite(ingresado)) return "Falta el peso";
@@ -54,8 +48,6 @@ function pesoDelPedido(valor: unknown): { ingresado: number; peso: number } | st
 
 rutasLibro.use(autenticar, soloRol("medico"));
 
-// GET /api/libro/tabla?peso=14
-// La tabla del libro para ese peso, agrupada por seccion.
 rutasLibro.get("/tabla", async (req, res) => {
   const elegido = pesoDelPedido(req.query.peso);
   if (typeof elegido === "string") {
@@ -108,8 +100,6 @@ rutasLibro.get("/tabla", async (req, res) => {
   res.json({ pesoIngresado: elegido.ingresado, peso: elegido.peso, categorias });
 });
 
-// GET /api/libro/generales?peso=14
-// Lo que el libro trae fuera de las tablas por peso (algoritmos, sedacion, analgesia...), con las dosis calculadas para el peso.
 rutasLibro.get("/generales", (req, res) => {
   const elegido = pesoDelPedido(req.query.peso);
   if (typeof elegido === "string") {

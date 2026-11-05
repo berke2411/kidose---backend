@@ -9,18 +9,15 @@ if (!secreto) {
   throw new Error("Falta JWT_SECRET en el archivo .env");
 }
 
-// Un token vale 7 dias; despues hay que volver a iniciar sesion.
 export function crearToken(usuario: Usuario): string {
   return jwt.sign({ id: usuario.id, rol: usuario.rol }, secreto as string, { expiresIn: "7d" });
 }
 
-// Es lo unico que sale de la API: el hash de la contrasena nunca se devuelve.
 export function usuarioPublico(usuario: Usuario & { alergias?: Alergia[] }) {
   const { contrasena, alergias, ...datos } = usuario;
   return { ...datos, alergias: (alergias ?? []).map((alergia) => alergia.nombre) };
 }
 
-// Exige "Authorization: Bearer <token>" y deja el usuario en res.locals.usuario. Solo pasan cuentas aprobadas.
 export async function autenticar(req: Request, res: Response, next: NextFunction): Promise<void> {
   const cabecera = req.headers.authorization ?? "";
   if (!cabecera.startsWith("Bearer ")) {

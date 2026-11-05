@@ -15,7 +15,6 @@ const incluirAtencion = {
   dosis: { orderBy: { hora: "asc" as const }, include: { medicamento: true } },
 };
 
-// GET /api/atenciones?pacienteId=3
 rutasAtenciones.get("/", soloRol("medico", "paciente"), async (req, res) => {
   const usuario: Usuario = res.locals.usuario;
   let pacienteId: number | null;
@@ -42,14 +41,12 @@ rutasAtenciones.get("/", soloRol("medico", "paciente"), async (req, res) => {
   res.json(atenciones);
 });
 
-// Lo que el libro indicaba para esa fila, para que el historial muestre mas que un numero
 function resumenDeLaFila(fila: FilaLibro): string {
   const partes = [fila.dosisKg, fila.indicar, fila.administrar === "" ? "" : `Administrar ${fila.administrar}`, fila.preparar];
   const lineas = fila.detalle === "" ? [] : fila.detalle.split("\n");
   return [...partes, ...lineas].filter((parte) => parte !== "").join(" · ").slice(0, 600);
 }
 
-// POST /api/atenciones
 rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
   const medico: Usuario = res.locals.usuario;
   const cuerpo = req.body ?? {};
@@ -65,7 +62,6 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
     res.status(400).json({ error: errorPeso });
     return;
   }
-  // La atencion se registra con el peso de la tabla del libro que corresponde (11,7 kg se registra como 11 kg)
   const pesoKg = normalizarPeso(cuerpo.pesoKg);
   if (pesoKg === null) {
     res.status(400).json({ error: "El peso es menor al de las tablas del libro" });
@@ -115,7 +111,6 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
       return;
     }
 
-    // La dosis tiene que estar dentro de lo que el libro indica para ese medicamento y ese peso
     const fila = medicamento.filas[0];
     if (!fila) {
       res.status(400).json({ error: `El libro no tiene ${medicamento.nombre} en la tabla de ${pesoKg} kg` });
@@ -143,7 +138,6 @@ rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
     });
   }
 
-  // La atencion y el nuevo peso se guardan juntos: o se guarda todo o nada.
   const atencion = await prisma.$transaction(async (tx) => {
     await tx.usuario.update({ where: { id: pacienteId }, data: { pesoKg } });
     return tx.atencion.create({

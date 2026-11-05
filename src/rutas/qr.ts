@@ -10,14 +10,11 @@ export const rutasQr = Router();
 
 rutasQr.use(autenticar);
 
-// El codigo del QR dura 5 minutos: una foto vieja del QR no sirve para acceder al paciente.
 const MINUTOS_DE_VIDA = 5;
 
-// POST /api/qr
 rutasQr.post("/", soloRol("paciente"), async (_req, res) => {
   const paciente: Usuario = res.locals.usuario;
 
-  // Se borran los codigos vencidos de este paciente para que la tabla no crezca.
   await prisma.codigoQr.deleteMany({ where: { pacienteId: paciente.id, venceEn: { lt: new Date() } } });
 
   const venceEn = new Date(Date.now() + MINUTOS_DE_VIDA * 60 * 1000);
@@ -27,7 +24,6 @@ rutasQr.post("/", soloRol("paciente"), async (_req, res) => {
   res.status(201).json({ codigo: codigoQr.codigo, venceEn: codigoQr.venceEn });
 });
 
-// POST /api/qr/leer
 rutasQr.post("/leer", soloRol("medico"), async (req, res) => {
   const codigo = texto(req.body?.codigo);
   if (codigo === "") {

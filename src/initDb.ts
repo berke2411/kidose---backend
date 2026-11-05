@@ -5,8 +5,6 @@ import { ALERGENOS, IDENTIDADES, MATRICULAS_SEMILLA } from "./datos-semilla";
 import { cargarPesos, leerJson, normalizarPeso } from "./libro";
 import { prisma } from "./prisma";
 
-// Carga los datos iniciales. Se puede ejecutar muchas veces: no duplica los usuarios ni las matriculas.
-
 type FilaJson = {
   nombre: string;
   dosisKg?: string;
@@ -26,8 +24,6 @@ type LibroJson = {
   tablas: { peso: number; secciones: Record<string, FilaJson[]> }[];
 };
 
-// Carga el catalogo y las tablas por peso desde data/libro.json (extraido del libro).
-// Las tablas se reemplazan enteras en cada arranque: son datos de referencia, no se editan en la app.
 async function sembrarLibro(): Promise<void> {
   const libro = leerJson<LibroJson>("libro.json");
   const idsActivos: number[] = [];
@@ -58,7 +54,6 @@ async function sembrarLibro(): Promise<void> {
     }
   }
 
-  // El catalogo anterior queda oculto (no se borra: las atenciones viejas lo usan)
   await prisma.medicamento.updateMany({ where: { id: { notIn: idsActivos } }, data: { activo: false } });
 
   const filas: Prisma.FilaLibroCreateManyInput[] = [];
@@ -93,18 +88,15 @@ async function sembrarLibro(): Promise<void> {
   await cargarPesos();
 }
 
-// Las alergias que no figuran en el libro no afectan a ninguna dosis: se sacan de los pacientes cargados antes
 async function limpiarAlergiasFueraDelLibro(): Promise<void> {
   const nombres = ALERGENOS.map((alergeno) => alergeno.nombre);
   await prisma.alergia.deleteMany({ where: { nombre: { notIn: nombres } } });
 }
 
-// Las dosis registradas antes de guardar el detalle no tienen de donde sacarlo
 async function completarDetalleDeDosis(): Promise<void> {
   await prisma.dosis.updateMany({ where: { detalle: "" }, data: { detalle: "Registrada antes de usar las tablas del libro" } });
 }
 
-// Los pacientes cargados antes de usar las tablas del libro pueden tener pesos que no figuran en ellas
 async function normalizarPesosDePacientes(): Promise<void> {
   const pacientes = await prisma.usuario.findMany({ where: { pesoKg: { not: null } }, select: { id: true, pesoKg: true } });
   for (const paciente of pacientes) {
@@ -180,7 +172,6 @@ async function sembrarUsuarios(): Promise<void> {
     },
   });
 
-  // Historial de ejemplo: las dosis que da la tabla del libro para 14 kg
   async function dosis(nombre: string, hora: string) {
     const medicamento = await prisma.medicamento.findFirstOrThrow({ where: { nombre, activo: true } });
     const fila = await prisma.filaLibro.findFirstOrThrow({ where: { medicamentoId: medicamento.id, peso: 14 } });
