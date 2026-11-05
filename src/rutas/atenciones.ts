@@ -15,6 +15,7 @@ const incluirAtencion = {
   dosis: { orderBy: { hora: "asc" as const }, include: { medicamento: true } },
 };
 
+// GET /api/atenciones?pacienteId=1
 rutasAtenciones.get("/", soloRol("medico", "paciente"), async (req, res) => {
   const usuario: Usuario = res.locals.usuario;
   let pacienteId: number | null;
@@ -47,6 +48,7 @@ function resumenDeLaFila(fila: FilaLibro): string {
   return [...partes, ...lineas].filter((parte) => parte !== "").join(" · ").slice(0, 600);
 }
 
+// POST /api/atenciones
 rutasAtenciones.post("/", soloRol("medico"), async (req, res) => {
   const medico: Usuario = res.locals.usuario;
   const cuerpo = req.body ?? {};

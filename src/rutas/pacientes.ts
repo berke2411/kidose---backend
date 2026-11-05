@@ -14,6 +14,7 @@ function puedeAcceder(usuario: Usuario, pacienteId: number): boolean {
   return usuario.rol === "medico" || usuario.id === pacienteId;
 }
 
+// GET /api/pacientes/:id
 rutasPacientes.get("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {
@@ -36,6 +37,7 @@ rutasPacientes.get("/:id", async (req, res) => {
   res.json(usuarioPublico(paciente));
 });
 
+// PATCH /api/pacientes/:id
 rutasPacientes.patch("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {

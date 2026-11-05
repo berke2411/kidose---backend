@@ -30,10 +30,12 @@ type Generales = {
 
 const generales = leerJson<Generales>("generales.json");
 
+// GET /api/libro/pesos
 rutasLibro.get("/pesos", (_req, res) => {
   res.json({ pesos: pesosDelLibro(), edadPeso: generales.edadPeso, avisos: generales.avisos });
 });
 
+// GET /api/libro/alergenos
 rutasLibro.get("/alergenos", (_req, res) => {
   res.json({ alergenos: ALERGENOS });
 });
@@ -48,6 +50,7 @@ function pesoDelPedido(valor: unknown): { ingresado: number; peso: number } | st
 
 rutasLibro.use(autenticar, soloRol("medico"));
 
+// GET /api/libro/tabla?peso=10
 rutasLibro.get("/tabla", async (req, res) => {
   const elegido = pesoDelPedido(req.query.peso);
   if (typeof elegido === "string") {
@@ -100,6 +103,7 @@ rutasLibro.get("/tabla", async (req, res) => {
   res.json({ pesoIngresado: elegido.ingresado, peso: elegido.peso, categorias });
 });
 
+// GET /api/libro/generales?peso=10
 rutasLibro.get("/generales", (req, res) => {
   const elegido = pesoDelPedido(req.query.peso);
   if (typeof elegido === "string") {

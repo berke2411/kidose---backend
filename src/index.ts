@@ -19,6 +19,7 @@ const port = Number(process.env.PORT ?? 3000);
 app.use(cors());
 app.use(express.json());
 
+// GET /api/health
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });

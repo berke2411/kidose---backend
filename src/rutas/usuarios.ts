@@ -17,6 +17,7 @@ const TRANSICIONES: Record<string, string[]> = {
   rechazada: [],
 };
 
+// GET /api/usuarios?estado=pendiente
 rutasUsuarios.get("/", async (req, res) => {
   const estado = texto(req.query.estado);
   if (estado !== "" && !ESTADOS.includes(estado)) {
@@ -31,6 +32,7 @@ rutasUsuarios.get("/", async (req, res) => {
   res.json(medicos.map((medico) => usuarioPublico(medico)));
 });
 
+// PATCH /api/usuarios/:id
 rutasUsuarios.patch("/:id", async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) {

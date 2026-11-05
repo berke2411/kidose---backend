@@ -12,6 +12,7 @@ rutasQr.use(autenticar);
 
 const MINUTOS_DE_VIDA = 5;
 
+// POST /api/qr
 rutasQr.post("/", soloRol("paciente"), async (_req, res) => {
   const paciente: Usuario = res.locals.usuario;
 
@@ -24,6 +25,7 @@ rutasQr.post("/", soloRol("paciente"), async (_req, res) => {
   res.status(201).json({ codigo: codigoQr.codigo, venceEn: codigoQr.venceEn });
 });
 
+// POST /api/qr/leer
 rutasQr.post("/leer", soloRol("medico"), async (req, res) => {
   const codigo = texto(req.body?.codigo);
   if (codigo === "") {
